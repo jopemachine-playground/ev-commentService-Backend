@@ -1,7 +1,11 @@
 const createError = require('http-errors');
 const cors = require('cors');
 import express = require('express');
-const router = require('./routes/router.tsx');
+const router = require('./routes/router.ts');
+const mysql = require('mysql');
+const dbConfig = require('./dbconfig');
+
+const connection = mysql.createConnection(dbConfig);
 
 const app = express();
 
