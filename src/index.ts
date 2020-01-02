@@ -1,10 +1,17 @@
+const createError = require('http-errors');
+const cors = require('cors');
 import express = require('express');
-var app = express();
+const router = require('./routes/router.tsx');
 
-app.get('/', function (req : express.Request, res: express.Response) {
-  res.send('Hello World!');
+const app = express();
+
+app.use(cors());
+
+app.use('/', router);
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
 });
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
-});
+module.exports = app;
