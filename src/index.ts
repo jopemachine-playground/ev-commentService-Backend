@@ -1,15 +1,13 @@
-const createError = require('http-errors');
-const cors = require('cors');
+import createError from 'http-errors';
+import cors from 'cors';
 import express = require('express');
-const router = require('./routes/router.ts');
-const mysql = require('mysql');
-const dbConfig = require('./dbconfig');
-
-const connection = mysql.createConnection(dbConfig);
+import router from './routes/router';
 
 const app = express();
 
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.use('/', router);
 
@@ -18,4 +16,5 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
+// export default app;
 module.exports = app;

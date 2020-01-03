@@ -1,18 +1,20 @@
-import {NextFunction} from "express";
+import {Request, Response, NextFunction} from "express";
+import {sql} from "../sql";
+import express from "express";
+import {userDBConfig} from "../dbconfig";
 
-const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
-const dbConfig = require('../dbconfig');
 
-const connection = mysql.createConnection(dbConfig);
+router.post("/SignIn", (req: Request, res: Response, next: NextFunction) => {
 
-router.get("/", function () {
-  console.log('Example app');
+  const result = sql.connect(userDBConfig,
+    (async (con: any, id: string, pw: string) => {
+      const result = await con.query(`select * from usersinfotbl where ID = ? AND PW = ?`, [id, pw]);
+      return result;
+    })
+  )(req.body.ID, req.body.PW);
+
+  console.log(result);
 });
 
-router.post("/SignIn", (req: Request, res:Response, next: NextFunction) => {
-
-});
-
-module.exports = router;
+export default router;

@@ -2,7 +2,7 @@ const path = require("path");
 const { NODE_ENV = "production"} = process.env;
 
 module.exports = {
-  entry: "./src/index.ts",
+  entry: "./bin/www",
   mode: NODE_ENV,
   target: "node",
   output: {
@@ -10,7 +10,7 @@ module.exports = {
     filename: "index.js"
   },
   resolve:{
-    extensions: [".ts", ".js"]
+    extensions: [".ts", ".js", ".tsx"]
   },
   module: {
     rules: [
