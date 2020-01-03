@@ -1,3 +1,5 @@
+import {} from "dotenv/config";
+
 export function dbConfig (database: string, connectionLimit: number) {
   return {
     host: 'localhost',
