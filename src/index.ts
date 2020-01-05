@@ -1,7 +1,7 @@
 import createError from 'http-errors';
 import cors from 'cors';
 const express = require('express');
-import router from './routes/router';
+import userRouter from './routes/user';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import cookieSession from 'cookie-session';
@@ -19,7 +19,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }));
 
-app.use('/', router);
+app.use('/', userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
