@@ -1,4 +1,4 @@
-import {Request, Response, NextFunction} from "express";
+import {Request, Response} from "express";
 import {sql} from "../sql";
 import express from "express";
 import {userDBConfig} from "../dbconfig";
@@ -18,11 +18,13 @@ user.post("/SignIn", (req: Request, res: Response) => {
         return true;
       };
 
-      const searchRes = await con.query(`select * from usersinfotbl where ID = '${id}' and PW = '${pw}'`);
+      const signInQuery = `select * from usersinfotbl where ID = '${id}' and PW = '${pw}'`;
+
+      const searchRes = await con.query(signInQuery);
 
       const isValid : Boolean = searchRes.length;
 
-      storeSession(id) && res.json({isValid: isValid});
+      storeSession(id) && res.json({ VALID: isValid });
     })
   )();
 });
@@ -39,42 +41,45 @@ user.post("/SignUp", (req: Request, res: Response) => {
   const orgFileName = fileObj.originalname;
   const filesize = fileObj.size;
 
-  console.log(fileObj);
-  console.log(orgFileName);
-
   if(filesize > 1024 * 1000 * 16) {
     console.log("File Size Over 16MB");
+    res.json( { FILE_SIZE_OVER : true });
     return;
   }
 
   sql.connect(userDBConfig,
     (async (con: any) => {
+      try {
+        const signUpQuery = `
+          insert into usersinfotbl (
+            ID,
+            PW,
+            Address,
+            PhoneNumber,
+            ProfileImage,
+            Gender,
+            Name,
+            SignupDate,
+            Email
+            ) values(
+            '${req.body.ID}',
+            '${req.body.PW}',
+            '${req.body.Address}',
+            '${req.body.PhoneNumber}',
+            '${fileObj}',
+            '${req.body.Gender}',
+            '${req.body.LastName + ' ' + req.body.FirstName}',
+            now(),
+            '${req.body.Email}'
+          )
+        `;
 
-      const signUpQuery = `
-        insert into usersinfotbl (
-          ID,
-          PW,
-          Address,
-          PhoneNumber,
-          ProfileImage,
-          Gender,
-          Name,
-          SignupDate,
-          Email
-          ) values(
-          '${req.body.ID}',
-          '${req.body.PW}',
-          '${req.body.Address}',
-          '${req.body.PhoneNumber}',
-          '${fileObj}',
-          '${req.body.Gender}',
-          '${req.body.LastName + ' ' + req.body.FirstName}',
-          now(),
-          '${req.body.Email}'
-        )
-      `;
+        await con.query(signUpQuery);
+        res.json({ SUCCESS: true });
 
-      await con.query(signUpQuery);
+      } catch(error) {
+        res.json({ DUP_ENTRY: true });
+      }
     })
   )();
 });
