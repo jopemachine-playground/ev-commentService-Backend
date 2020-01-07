@@ -27,24 +27,36 @@ user.post("/SignIn", (req: Request, res: Response) => {
   )();
 });
 
-user.get("./SignOut", (req: Request, res: Response) => {
+user.get("/SignOut", (req: Request, res: Response) => {
   req.session!.destroy(() => { return req.session });
   res.clearCookie("sID");
   res.redirect('/');
 });
 
+user.post("/SignUp", (req: Request, res: Response) => {
 
-user.post("./SignUp", (req: Request, res: Response) => {
+  const fileObj = req.files[0];
+  const orgFileName = fileObj.originalname;
+  const filesize = fileObj.size;
+
+  console.log(fileObj);
+  console.log(orgFileName);
+
+  if(filesize > 1024 * 1000 * 16) {
+    console.log("File Size Over 16MB");
+    return;
+  }
+
   sql.connect(userDBConfig,
     (async (con: any) => {
 
-      await con.query(`
+      const signUpQuery = `
         insert into usersinfotbl (
           ID,
           PW,
           Address,
           PhoneNumber,
-          ProfileImageFileName,
+          ProfileImage,
           Gender,
           Name,
           SignupDate,
@@ -54,12 +66,15 @@ user.post("./SignUp", (req: Request, res: Response) => {
           '${req.body.PW}',
           '${req.body.Address}',
           '${req.body.PhoneNumber}',
-          '${req.body.ProfileImage}',
+          '${fileObj}',
           '${req.body.Gender}',
           '${req.body.LastName + ' ' + req.body.FirstName}',
           now(),
           '${req.body.Email}'
-        `);
+        )
+      `;
+
+      await con.query(signUpQuery);
     })
   )();
 });
