@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
+import { Request, Response } from "passport";
 import { sql } from "../sql";
 import express from "express";
 import { userDBConfig } from "../dbconfig";
-import alert from 'alert-node';
+import { isSignedIn } from "../authentification";
 
 const blogMgmt = express.Router();
 
-blogMgmt.post("/URL-Register", (req: Request, res: Response) => {
+blogMgmt.post("/URL-Register", isSignedIn, (req: Request, res: Response) => {
   sql.connect(userDBConfig,
     (async (con: any) => {
       const fetchQuery =

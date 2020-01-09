@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import RateLimit from "express-rate-limit";
 
 const rateLimit = new RateLimit({

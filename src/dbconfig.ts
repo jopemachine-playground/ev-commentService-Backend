@@ -12,3 +12,5 @@ export function dbConfig (database: string, connectionLimit: number) {
 }
 
 export const userDBConfig = dbConfig('userdb', 4);
+
+export const usersURLConfig = dbConfig('usersurltbl', 4);

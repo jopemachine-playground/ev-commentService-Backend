@@ -1,14 +1,15 @@
 import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "passport";
 
-export function isSignedIn (req, res, next) {
-  if(req.isAuthenticated()){
+export function isSignedIn(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated()) {
     next();
   } else {
     res.status(403).send('먼저 로그인을 해 주세요!');
   }
 }
 
-export function isNotSignedIn (req, res, next) {
+export function isNotSignedIn (req: Request, res: Response, next: NextFunction) {
   if(!req.isAuthenticated()){
     next();
   } else {
@@ -16,7 +17,7 @@ export function isNotSignedIn (req, res, next) {
   }
 }
 
-export function verifyToken (req, res, next) {
+export function verifyToken (req: Request, res: Response, next: NextFunction) {
   try {
     req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
     return next();
