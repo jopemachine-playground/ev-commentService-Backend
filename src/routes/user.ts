@@ -1,42 +1,41 @@
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "passport";
 import {sql} from "../sql";
 import express from "express";
 import {userDBConfig} from "../dbconfig";
-import alert from 'alert-node';
+import passport from "passport";
+import {isNotSignedIn, isSignedIn} from "../authentification";
 
 const user = express.Router();
 
-user.post("/SignIn", (req: Request, res: Response) => {
-  sql.connect(userDBConfig,
-    (async (con: any) => {
+user.post("/SignIn", isNotSignedIn, (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate('local', (authError, user, info) => {
+    if(authError) {
+      console.log(authError);
+      return next(authError);
+    }
 
-      let id = req.body.ID;
-      let pw = req.body.PW;
+    if(!user) {
+      req.flash('loginError', info.message);
+      return res.redirect('/');
+    }
 
-      const storeSession = (id: string) => {
-        req.session!.userID = id;
-        return true;
-      };
+    return req.login(user, (loginError) => {
+      if(loginError) {
+        console.log(loginError);
+        return next(loginError);
+      }
 
-      const signInQuery = `select * from usersinfotbl where ID = '${id}' and PW = '${pw}'`;
-
-      const searchRes = await con.query(signInQuery);
-
-      const isValid : Boolean = searchRes.length;
-
-      storeSession(id) && res.json({ VALID: isValid });
-    })
-  )();
+      return res.json({ VALID: true });
+    });
+  })(req, res, next);
 });
 
-user.get("/SignOut", (req: Request, res: Response) => {
-  req.session!.destroy(() => { return req.session });
-  res.clearCookie("sID");
+user.get("/SignOut", isSignedIn, (req: Request, res: Response) => {
+  req.session.destroy();
   res.redirect('/');
 });
 
 user.post("/SignUp", (req: Request, res: Response) => {
-
   const fileObj = req.files[0];
   const orgFileName = fileObj.originalname;
   const filesize = fileObj.size;
