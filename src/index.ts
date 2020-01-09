@@ -1,13 +1,21 @@
 import createError from 'http-errors';
 import cors from 'cors';
-const express = require('express');
+import express from "express";
+import expressSession from "express-session";
 import userRouter from './routes/user';
+import blogMgmtRouter from "./routes/blogMgmt";
+import bodyParser from "body-parser";
+import tokenIssuer from "./routes/tokenIssuer";
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import cookieSession from 'cookie-session';
 import multer from 'multer';
+import passport from "passport";
+import passportConfig from "./passport/passportConfig";
+import flash from "connect-flash";
 
 const app = express();
+passportConfig(passport);
 
 app.use(cors());
 
@@ -21,14 +29,21 @@ app.use(multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(cookieParser());
-app.use(cookieSession({
-  keys: `sID`, // 세션키
-  name: 'session',
-  maxAge: 24 * 60 * 60 * 1000
-}));
+app.use(flash());
 
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(expressSession({
+  secret: 'here should be the secret key',
+  resave: true,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use('/', blogMgmtRouter);
 app.use('/', userRouter);
+// app.use('/', tokenIssuer);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
