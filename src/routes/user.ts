@@ -1,37 +1,44 @@
-import {NextFunction, Request, Response} from "passport";
+import {Request, Response} from "express";
 import {sql} from "../sql";
 import express from "express";
 import {userDBConfig} from "../dbconfig";
-import passport from "passport";
-import {isNotSignedIn, isSignedIn} from "../authentification";
+import jwt from 'jsonwebtoken';
 
 const user = express.Router();
 
-user.post("/SignIn", isNotSignedIn, (req: Request, res: Response, next: NextFunction) => {
-  passport.authenticate('local', (authError, user, info) => {
-    if(authError) {
-      console.log(authError);
-      return next(authError);
-    }
+user.post("/SignIn", (req: Request, res: Response) => {
+  sql.connect(userDBConfig, async (con: any) => {
+    const signInQuery =
+      `select * from usersinfotbl where ID = '${req.body.ID}' and PW = '${req.body.PW}'`;
 
-    if(!user) {
-      req.flash('loginError', info.message);
-      return res.redirect('/');
-    }
+    const searchRes = await con.query(signInQuery);
 
-    return req.login(user, (loginError) => {
-      if(loginError) {
-        console.log(loginError);
-        return next(loginError);
-      }
+    const isValid: Boolean = searchRes.length;
 
-      return res.json({ VALID: true });
+    if(!isValid) res.json ({ VALID: false, message: "ID와 비밀번호가 일치하지 않습니다."});
+  })();
+
+  const token = jwt.sign(
+    {
+      ID: req.body.ID
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '120m',
+      issuer: 'ev-CommmentServiceBackend',
     });
-  })(req, res, next);
+
+  return res.json({
+    VALID: true,
+    code: 200,
+    message: "토큰이 발급되었습니다",
+    token,
+  })
+
 });
 
-user.get("/SignOut", isSignedIn, (req: Request, res: Response) => {
-  req.session.destroy();
+user.get("/SignOut", (req: Request, res: Response) => {
+  // req.session.destroy();
   res.redirect('/');
 });
 

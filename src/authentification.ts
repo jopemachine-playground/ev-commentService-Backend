@@ -1,25 +1,10 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "passport";
 
-export function isSignedIn(req: Request, res: Response, next: NextFunction) {
-  if (req.isAuthenticated()) {
-    next();
-  } else {
-    res.status(403).send('먼저 로그인을 해 주세요!');
-  }
-}
-
-export function isNotSignedIn (req: Request, res: Response, next: NextFunction) {
-  if(!req.isAuthenticated()){
-    next();
-  } else {
-    res.redirect('/');
-  }
-}
-
 export function verifyToken (req: Request, res: Response, next: NextFunction) {
   try {
-    req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
+    let token = req.body.token;
+    req.decoded = jwt.verify(token, process.env.JWT_SECRET);
     return next();
   } catch(error) {
     if(error.name === 'TokenExpiredError') {
@@ -34,6 +19,4 @@ export function verifyToken (req: Request, res: Response, next: NextFunction) {
     });
   }
 }
-
-
 
