@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "passport";
+import { Request, Response, NextFunction } from "express";
 
 export function verifyToken (req: Request, res: Response, next: NextFunction) {
   try {
     let token = req.body.token;
-    req.decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded = jwt.verify(token, process.env.JWT_SECRET);
     return next();
   } catch(error) {
     if(error.name === 'TokenExpiredError') {

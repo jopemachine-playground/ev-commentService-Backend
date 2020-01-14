@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export function dbConfig (database: string, connectionLimit: number) {
   return {
     host: process.env.MYSQL_HOST,
@@ -11,4 +15,3 @@ export function dbConfig (database: string, connectionLimit: number) {
 
 export const userDBConfig = dbConfig('userdb', 4);
 
-export const usersURLConfig = dbConfig('usersurltbl', 4);
