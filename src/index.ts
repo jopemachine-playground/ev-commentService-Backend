@@ -45,7 +45,7 @@ app.use(expressSession({
 
 app.use(flash());
 
-app.use('/', blogMgmtRouter);
+app.use('/URL-Register', blogMgmtRouter);
 app.use('/', userRouter);
 
 app.use(function(req, res, next) {
