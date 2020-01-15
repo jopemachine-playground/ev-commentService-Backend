@@ -1,7 +1,7 @@
 import promiseMysql from 'promise-mysql';
 
 export module sql {
-  export const connect =  (dbConf: Object, fn: Function) => async (...args: any) => {
+  export const connect = (dbConf: Object, fn: Function) => async (...args: any) => {
     const pool = await promiseMysql.createPool(dbConf);
     const con: any = await pool.getConnection();
 

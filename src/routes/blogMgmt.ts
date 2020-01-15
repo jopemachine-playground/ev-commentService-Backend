@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { sql } from "../sql";
 import express from "express";
-import { userDBConfig } from "../dbconfig";
-import {verifyToken} from "../authentification";
+import { dbConfig, userDBConfig } from "../dbconfig";
+import { verifyToken } from "../authentification";
 import jwt from "jsonwebtoken";
-import shorthash from "shorthash";
+import shortHash from "shorthash";
 
 const blogMgmt = express.Router();
 
@@ -25,14 +25,28 @@ blogMgmt.post("/", verifyToken, (req: Request, res: Response) => {
   )();
 });
 
-blogMgmt.post("/Add", verifyToken, (req: Request, res: Response) => {
+blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: NextFunction) => {
 
   let token = req.body.token;
   let userID = jwt.verify(token, process.env.JWT_SECRET);
 
-  let { url, urlTitle } = req.body;
+  let { blogURL, blogTitle } = req.body;
 
-  let urlID = shorthash.unique(URL);
+  let urlID = shortHash.unique(blogURL);
+
+  let duplicateURL;
+
+  await sql.connect(userDBConfig,
+    (async (con: any) => {
+      const idDupCheck = `select * from usersurltbl where URLID = '${urlID}'`;
+      duplicateURL = await con.query(idDupCheck);
+    })
+  )();
+
+  if(duplicateURL) {
+    res.json({ VALID : false });
+    return;
+  }
 
   sql.connect(userDBConfig,
     (async (con: any) => {
@@ -44,28 +58,38 @@ blogMgmt.post("/Add", verifyToken, (req: Request, res: Response) => {
           UserID
           ) VALUES(
           '${urlID}',
-          '${urlTitle}',
-          '${url}',
-          '${userID}'`;
-
-      const searchRes = await con.query(insertNewService);
-
-      console.log("insert New Service Success");
-
-      res.json(searchRes);
+          '${blogTitle}',
+          '${blogURL}',
+          '${userID}'
+          )`;
+      await con.query(insertNewService);
     })
   )();
 
-  sql.connect(userDBConfig,
+  await sql.connect(userDBConfig,
     (async (con: any) => {
       const createDB = `create database ${urlID} charset 'utf8mb4' collate utf8mb4_unicode_ci`;
-      const searchRes = await con.query(createDB);
-      res.json(searchRes);
-
-      console.log("create DB Success")
+      await con.query(createDB);
     })
   )();
   
+  sql.connect(dbConfig(urlID, 4), 
+    (async (con: any) => {
+      const createTbl = `
+        create table visitorcounter (
+          \`I\`       int(11)     not null auto_increment,
+          \`PageID\`  mediumtext  not null,
+          \`REGDATE\` datetime    not null,
+          \`REGIP\`   varchar(30) null,
+          \`REFERER\` text        null,
+          primary   key(\`I\`)
+      )`
+      await con.query(createTbl);
+    })
+  )();
+
+  res.json({ VALID : true });
+
 });
 
 
