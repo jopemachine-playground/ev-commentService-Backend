@@ -4,14 +4,15 @@ import express from "express";
 import { dbConfig, userDBConfig } from "../dbconfig";
 import { verifyToken } from "../authentification";
 import jwt from "jsonwebtoken";
+import R from "ramda";
 import shortHash from "shorthash";
 
 const blogMgmt = express.Router();
 
 blogMgmt.post("/", verifyToken, (req: Request, res: Response) => {
 
-  let token = req.body.token;
-  let decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const token = req.body.token;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   sql.connect(userDBConfig,
     (async (con: any) => {
@@ -27,12 +28,12 @@ blogMgmt.post("/", verifyToken, (req: Request, res: Response) => {
 
 blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: NextFunction) => {
 
-  let token = req.body.token;
-  let userID = jwt.verify(token, process.env.JWT_SECRET);
+  const token = req.body.token;
+  const userID: string = jwt.verify(token, process.env.JWT_SECRET).ID;
 
-  let { blogURL, blogTitle } = req.body;
+  const { blogURL, blogTitle } = req.body;
 
-  let urlID = shortHash.unique(blogURL);
+  const urlID = shortHash.unique(blogURL);
 
   let duplicateURL;
 
@@ -43,7 +44,7 @@ blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: Nex
     })
   )();
 
-  if(duplicateURL) {
+  if(!R.isEmpty(duplicateURL)){
     res.json({ VALID : false });
     return;
   }
