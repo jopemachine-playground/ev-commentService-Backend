@@ -93,6 +93,33 @@ blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: Nex
 
 });
 
+blogMgmt.post("/Delete", verifyToken, (req: Request, res: Response) => {
+
+  const token = req.body.token;
+
+  const userID: string = jwt.verify(token, process.env.JWT_SECRET).ID;
+
+  const { blogID } = req.body;
+
+  sql.connect(userDBConfig,
+    (async (con: any) => {
+      const deleteRecord =
+        `delete from usersurltbl where URLID = '${blogID}' and UserID = '${userID}'`;
+      await con.query(deleteRecord);
+    })
+  )();
+
+  sql.connect(userDBConfig,
+    (async (con: any) => {
+      const dropDatabase =
+        `drop database ${blogID}`;
+      await con.query(dropDatabase);
+    })
+  )();
+
+  res.json({ VALID: true });
+  
+});
 
 
 export default blogMgmt;
