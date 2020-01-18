@@ -43,15 +43,23 @@ user.get("/SignOut", (req: Request, res: Response) => {
 });
 
 user.post("/SignUp", (req: Request, res: Response) => {
-  const fileObj = req.files[0];
-  const orgFileName = fileObj.originalname;
-  const filesize = fileObj.size;
 
-  if(filesize > 1024 * 1000 * 16) {
-    console.log("File Size Over 16MB");
-    res.json( { FILE_SIZE_OVER : true });
-    return;
+  let fileObj;
+  let fileObjStr: string = "NULL";
+
+  if (req.files.length !== 0) {
+    fileObj = req.files[0];
+    const orgFileName = fileObj.originalname;
+    const filesize = fileObj.size;
+
+    if (filesize > 1024 * 1000 * 16) {
+      console.log("File Size Over 16MB");
+      res.json({ FILE_SIZE_OVER: true });
+      return;
+    }
   }
+
+  typeof fileObj !== 'undefined' && (fileObjStr = `'${fileObj}'`);
 
   sql.connect(userDBConfig,
     (async (con: any) => {
@@ -72,13 +80,15 @@ user.post("/SignUp", (req: Request, res: Response) => {
             '${req.body.PW}',
             '${req.body.Address}',
             '${req.body.PhoneNumber}',
-            '${fileObj}',
+            ${fileObjStr},
             '${req.body.Gender}',
             '${req.body.LastName + ' ' + req.body.FirstName}',
             now(),
             '${req.body.Email}'
           )
         `;
+
+        console.log(signUpQuery);
 
         await con.query(signUpQuery);
         res.json({ SUCCESS: true });
