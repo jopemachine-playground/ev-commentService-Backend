@@ -121,11 +121,11 @@ user.post("/SignUp", (req: Request, res: Response) => {
 
 user.post('/UserEdit', verifyToken, (req: Request, res: Response) => {
   const token = req.body.token;
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const userID = jwt.verify(token, process.env.JWT_SECRET).ID;
 
   sql.connect(userDBConfig, async (con: any) => {
     const fetchQuery =
-      `select * from usersinfotbl where ID = '${decoded.ID}'`;
+      `select * from usersinfotbl where ID = '${userID}'`;
 
     const searchRes = await con.query(fetchQuery);
 
@@ -133,15 +133,98 @@ user.post('/UserEdit', verifyToken, (req: Request, res: Response) => {
   })(); 
 })
 
-user.post('/UserEdit/Update', verifyToken, (req: Request, res: Response) => {
-  const token = req.body.token;
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+user.post(
+  "/UserEdit/Update",
+  verifyToken,
+  async (req: Request, res: Response) => {
 
-  sql.connect(userDBConfig, async (con: any) => {
-    
-  
-  })(); 
-})
+    const token = req.body.token;
+    const userID = jwt.verify(token, process.env.JWT_SECRET).ID;
+
+    let fileName: string = "NULL";
+
+    let updateQuery = `
+      update usersinfotbl set
+        PW = '${req.body.PW}',
+        Address = '${req.body.Address}',
+        PhoneNumber = '${req.body.PhoneNumber}',
+        Gender = '${req.body.Gender}',
+        Email = '${req.body.Email}',
+        Name = '${req.body.LastName + ' ' + req.body.FirstName}'
+    `;
+
+    if (req.files.length !== 0) {
+      const fileObj = req.files[0];
+      const orgFileName = fileObj.originalname,
+        filesize = fileObj.size;
+
+      if (filesize > 1024 * 1000 * 16) {
+        console.log("File Size Over 16MB");
+        res.json({ FILE_SIZE_OVER: true });
+        return;
+      }
+
+      let ext = orgFileName.split(".")[1];
+
+      let oldImageFileName: string = "";
+
+      await sql.connect(userDBConfig, async (con: any) => {
+        const fetchOldProfileImageName = `select ProfileImageName from usersinfotbl where ID = '${userID}'`,
+          fetchRes = await con.query(fetchOldProfileImageName);
+
+        oldImageFileName = fetchRes[0].ProfileImageName;
+      })();
+
+      // 기존에 존재하던 프로필 이미지 파일 삭제
+      fs.unlink(
+        path.join(
+          __dirname,
+          "/../../",
+          "public",
+          "profileImages",
+          oldImageFileName
+        ),
+        function(err) {
+          if (err) {
+            console.log(err);
+            throw err;
+          }
+        }
+      );
+
+      // 보내진 프로필 사진을 새로 등록할 수 있도록 update문을 갱신
+      fs.open(fileObj.path, "r", async (status, fd) => {
+        if (status) {
+          console.log(status.message);
+          return;
+        }
+
+        var buffer = new Buffer(filesize);
+
+        fs.read(fd, buffer, 0, filesize, 0, (err, num) => {});
+
+        fileName = `${req.body.ID}.${ext}`;
+
+        fs.writeFile(
+          path.join(__dirname, "/../../", "public", "profileImages", fileName),
+          buffer,
+          err => {}
+        );
+
+        updateQuery += `, ProfileImageName = '${fileName}' where ID = '${userID}'`;
+
+      });
+    }
+    else {
+      updateQuery += `where ID = '${userID}'`;
+    }
+
+    sql.connect(userDBConfig, async (con: any) => {
+      con.query(updateQuery);
+      res.json({ SUCCESS: true });
+    })();
+  }
+);
 
 
 export default user;
