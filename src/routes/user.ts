@@ -1,8 +1,11 @@
-import {Request, Response} from "express";
+import {Request, Response, response} from "express";
 import {sql} from "../sql";
 import express from "express";
 import {userDBConfig} from "../dbconfig";
 import jwt from 'jsonwebtoken';
+import { verifyToken } from "../authentification";
+import fs from "fs";
+import path from "path";
 
 const user = express.Router();
 
@@ -34,7 +37,6 @@ user.post("/SignIn", (req: Request, res: Response) => {
     message: "토큰이 발급되었습니다",
     token,
   })
-
 });
 
 user.get("/SignOut", (req: Request, res: Response) => {
@@ -44,22 +46,40 @@ user.get("/SignOut", (req: Request, res: Response) => {
 
 user.post("/SignUp", (req: Request, res: Response) => {
 
-  let fileObj;
-  let fileObjStr: string = "NULL";
+  let fileName: string = "NULL";
 
   if (req.files.length !== 0) {
-    fileObj = req.files[0];
-    const orgFileName = fileObj.originalname;
-    const filesize = fileObj.size;
+    const fileObj = req.files[0];
+    const orgFileName = fileObj.originalname,
+      filesize = fileObj.size;
 
     if (filesize > 1024 * 1000 * 16) {
       console.log("File Size Over 16MB");
       res.json({ FILE_SIZE_OVER: true });
       return;
     }
-  }
 
-  typeof fileObj !== 'undefined' && (fileObjStr = `'${fileObj}'`);
+    let ext = orgFileName.split(".")[1];
+
+    fs.open(fileObj.path, "r", function(status, fd) {
+      if (status) {
+        console.log(status.message);
+        return;
+      }
+
+      var buffer = new Buffer(filesize);
+
+      fs.read(fd, buffer, 0, filesize, 0, (err, num) => {});
+
+      fileName = `${req.body.ID}.${ext}`;
+
+      fs.writeFile(
+        path.join(__dirname, "/../../", "public", "profileImages", fileName),
+        buffer,
+        err => {}
+      );
+    });
+  }
 
   sql.connect(userDBConfig,
     (async (con: any) => {
@@ -70,7 +90,7 @@ user.post("/SignUp", (req: Request, res: Response) => {
             PW,
             Address,
             PhoneNumber,
-            ProfileImage,
+            ProfileImageName,
             Gender,
             Name,
             SignupDate,
@@ -80,7 +100,7 @@ user.post("/SignUp", (req: Request, res: Response) => {
             '${req.body.PW}',
             '${req.body.Address}',
             '${req.body.PhoneNumber}',
-            ${fileObjStr},
+            '${fileName}',
             '${req.body.Gender}',
             '${req.body.LastName + ' ' + req.body.FirstName}',
             now(),
@@ -88,16 +108,40 @@ user.post("/SignUp", (req: Request, res: Response) => {
           )
         `;
 
-        console.log(signUpQuery);
-
         await con.query(signUpQuery);
         res.json({ SUCCESS: true });
 
       } catch(error) {
+        console.log(error);
         res.json({ DUP_ENTRY: true });
       }
     })
   )();
 });
+
+user.post('/UserEdit', verifyToken, (req: Request, res: Response) => {
+  const token = req.body.token;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  sql.connect(userDBConfig, async (con: any) => {
+    const fetchQuery =
+      `select * from usersinfotbl where ID = '${decoded.ID}'`;
+
+    const searchRes = await con.query(fetchQuery);
+
+    res.json(searchRes);
+  })(); 
+})
+
+user.post('/UserEdit/Update', verifyToken, (req: Request, res: Response) => {
+  const token = req.body.token;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  sql.connect(userDBConfig, async (con: any) => {
+    
+  
+  })(); 
+})
+
 
 export default user;
