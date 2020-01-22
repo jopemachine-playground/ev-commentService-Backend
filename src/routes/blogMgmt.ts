@@ -67,16 +67,13 @@ blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: Nex
     })
   )();
 
-  await sql.connect(userDBConfig,
-    (async (con: any) => {
-      const createDB = `create database ${urlID} charset 'utf8mb4' collate utf8mb4_unicode_ci`;
-      await con.query(createDB);
-    })
-  )();
-  
-  sql.connect(dbConfig(urlID, 4), 
-    (async (con: any) => {
-      const createTbl = `
+  await sql.connect(userDBConfig, async (con: any) => {
+    const createDB = `create database ${urlID} charset 'utf8mb4' collate utf8mb4_unicode_ci`;
+    await con.query(createDB);
+  })();
+
+  sql.connect(dbConfig(urlID, 4), async (con: any) => {
+    const createTbl = `
         create table visitorcounter (
           \`I\`       int(11)     not null auto_increment,
           \`PageID\`  mediumtext  not null,
@@ -84,12 +81,21 @@ blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: Nex
           \`REGIP\`   varchar(30) null,
           \`REFERER\` text        null,
           primary   key(\`I\`)
-      )`
-      await con.query(createTbl);
-    })
-  )();
+      )`;
+    await con.query(createTbl);
 
-  res.json({ VALID : true });
+    // 특정 서비스의 특정 PageID 테이블이 갖는 게시글 Title 정보를 갖고 있다.
+    // 즉, 어떤 게시글의 제목 정보를 담고 있는 테이블이다.
+    const createPageTitlePairTable = `
+        create table pagetitlepairs(
+          \`PageID\`  mediumtext  not null,
+          \`Title\`   mediumtext  not null
+        )`;
+
+    await con.query(createPageTitlePairTable);
+  })();
+
+  res.json({ VALID: true });
 
 });
 
