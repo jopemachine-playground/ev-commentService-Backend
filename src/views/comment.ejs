@@ -17,7 +17,7 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <!-- 댓글 서비스의 css 시트. -->
-  <link rel="stylesheet" href="./comment.css">
+  <link rel="stylesheet" href="<%=api%>/style/comment.css">
 </head>
 
 <body>
@@ -32,7 +32,7 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
         <% } else { %>
             <li id="EV-Logout" style="float:right;" onclick="">Logout</li>
             <li id="connectedUser-AvatarList" style="float:right;"><img id="connectedUser-Avatar" data-toggle="modal"
-                data-target="#UserInfoModal" class="img-fluid" src="../../public/profileImages/$userDefaultProfile.svg"
+                data-target="#UserInfoModal" class="img-fluid" src="<%=api%>/profileImages/$userDefaultProfile.svg"
                 alt="Image For User Profile"></li>
         <%  } %>
 
@@ -80,6 +80,11 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
           
           <% comments[0].map((item) => { %>
 
+            <%
+            // 댓글의 긍정도에 따라, class를 달리 붙임.
+            const positiveClass = "comment-neutral";
+            %>
+
             <li id="ev-comment-<%=item.CommentIndex%>" 
                 class="row comment <%=positiveClass%>">
                 <li id="EV-Logout" style="float:right;" onclick="">Logout</li>
@@ -90,9 +95,9 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
                 <br>
                 <p id="comment-content-%s" class="comment-content"><%=item.Content%></p>
                 <%if(connectedUserID == item.UserID) {%>
-                  <span><img src="./img/trash-2.svg" width="16px" height="16px" onclick="deleteComment($(this).closest('li').attr('id'))"></span>
-                  <span><img src="./img/edit.svg" width="16px" height="16px" onclick="editComment($(this).parent().prevAll('p').attr('id'), $(this).parent().next())"></span>
-                  <span style="display: none;" class="sendCommentUpdateButton"><img src="./img/send.svg" width="16px" height="16px" onclick="sendCommentUpdateMessage($(this).parent().prevAll('p').attr('id'))"></span>
+                  <span><img src="<%=api%>/image/trash-2.svg" width="16px" height="16px" onclick="deleteComment($(this).closest('li').attr('id'))"></span>
+                  <span><img src="<%=api%>/image/edit.svg" width="16px" height="16px" onclick="editComment($(this).parent().prevAll('p').attr('id'), $(this).parent().next())"></span>
+                  <span style="display: none;" class="sendCommentUpdateButton"><img src="<%=api%>/image/send.svg" width="16px" height="16px" onclick="sendCommentUpdateMessage($(this).parent().prevAll('p').attr('id'))"></span>
                 <%}%>
               </div>
             </li>
@@ -222,6 +227,6 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.10.1/js/mdb.min.js"></script>
-<script src="./comment.js"></script>
+<script src="<%=api%>/js/comment.js"></script>
 
 </html>

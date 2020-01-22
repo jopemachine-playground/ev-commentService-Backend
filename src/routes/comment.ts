@@ -5,6 +5,9 @@ import { dbConfig, userDBConfig } from "../dbconfig";
 import { verifyToken } from "../authentification";
 import jwt from "jsonwebtoken";
 import shortHash from "shorthash";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const comment = express.Router();
 
@@ -83,8 +86,10 @@ comment.get(
         }
       }
 
+      console.log(process.env.API);
+
       res.render("commentIFrame", {
-        api: "http://localhost:8000/Comment/",
+        api: process.env.API,
         blogID: urlID,
         pageID,
         mode,
@@ -136,6 +141,7 @@ comment.get(
     })();
 
     res.render("comment", {
+      api: process.env.api,
       connectedUserID: userID,
       params: req.params,
       comments,
@@ -146,5 +152,17 @@ comment.get(
     });
   }
 );
+
+comment.post("/Add", (req: Request, res: Response) => {
+
+});
+
+comment.post("/Delete", (req: Request, res: Response) => {
+
+});
+
+comment.post("/Edit", (req: Request, res: Response) => {
+
+});
 
 export default comment;

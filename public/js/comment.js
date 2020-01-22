@@ -2,6 +2,8 @@
 var EmotionalAnalysisServiceURL       = "https://emotionanalysisservice.ga/changer/comment";
 var EmotionalAnalysisServiceReportURL = "https://emotionanalysisservice.ga/changer/report";
 
+var API = `http://localhost:8000`;
+
 // onload 이벤트 후 값을 갖는 객체
 // php에서 특정 태그에 값을 채우는 방식으로 js로 변수를 전달함
 var phpVars;
@@ -114,7 +116,7 @@ function postComment(){
         // Success
         (score)=>{
             arg.emotionalAnalysisValue = (parseInt(score));
-            ajaxRequest("POST", "../php-Action/AddComment.php", arg, () => { location.reload(); });
+            ajaxRequest("POST", `${API}/Comment/Add`, arg, () => { location.reload(); });
         },
         // Error
         ()=>{ log ("EmotionalAnalysisServiceURL 접속에 실패했습니다"); }
@@ -124,7 +126,7 @@ function postComment(){
 
     case "debug":
 
-      ajaxRequest("POST", "../php-Action/AddComment.php", arg, () => { location.reload(); });
+      ajaxRequest("POST", `${API}/Comment/Add`, arg, () => { location.reload(); });
       break;
 
     default:
@@ -170,7 +172,7 @@ function deleteComment(id){
     pageID    : params.pageID
   };
 
-  ajaxRequest("POST", "../php-Action/DeleteComment.php", arg,
+  ajaxRequest("POST", `${API}/Comment/Delete`, arg,
     ()=>{ location.reload(); }
   );
 
@@ -276,7 +278,7 @@ function sendCommentUpdateMessage(contentID){
       ajaxRequest("POST", EmotionalAnalysisServiceURL, { commentContent : arg.commentContent },
         (score) => {
           arg.emotionalAnalysisValue = (parseInt(score));
-          ajaxRequest("POST", "../php-Action/EditComment.php", arg,
+          ajaxRequest("POST", `${API}/Comment/Edit`, arg,
             // Success
             ()=>{ location.reload(); },
             // Fail
@@ -287,7 +289,7 @@ function sendCommentUpdateMessage(contentID){
       break;
 
     case "debug":
-      ajaxRequest("POST", "../php-Action/EditComment.php", arg,
+      ajaxRequest("POST", `${API}/Comment/Edit`, arg,
         ()=>{ location.reload(); }
       );
       break;
