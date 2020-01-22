@@ -81,10 +81,9 @@ user.post("/SignUp", (req: Request, res: Response) => {
     });
   }
 
-  sql.connect(userDBConfig,
-    (async (con: any) => {
-      try {
-        const signUpQuery = `
+  sql.connect(userDBConfig, async (con: any) => {
+    try {
+      const signUpQuery = `
           insert into usersinfotbl (
             ID,
             PW,
@@ -102,21 +101,19 @@ user.post("/SignUp", (req: Request, res: Response) => {
             '${req.body.PhoneNumber}',
             '${fileName}',
             '${req.body.Gender}',
-            '${req.body.LastName + ' ' + req.body.FirstName}',
+            '${req.body.LastName + " " + req.body.FirstName}',
             now(),
             '${req.body.Email}'
           )
         `;
 
-        await con.query(signUpQuery);
-        res.json({ SUCCESS: true });
-
-      } catch(error) {
-        console.log(error);
-        res.json({ DUP_ENTRY: true });
-      }
-    })
-  )();
+      await con.query(signUpQuery);
+      res.json({ SUCCESS: true });
+    } catch (error) {
+      console.log(error);
+      res.json({ DUP_ENTRY: true });
+    }
+  })();
 });
 
 user.post('/UserEdit', verifyToken, (req: Request, res: Response) => {

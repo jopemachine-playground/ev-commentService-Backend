@@ -14,16 +14,13 @@ blogMgmt.post("/", verifyToken, (req: Request, res: Response) => {
   const token = req.body.token;
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  sql.connect(userDBConfig,
-    (async (con: any) => {
-      const fetchQuery =
-        `select * from usersurltbl where UserID = '${decoded.ID}'`;
+  sql.connect(userDBConfig, async (con: any) => {
+    const fetchQuery = `select * from usersurltbl where UserID = '${decoded.ID}'`;
 
-      const searchRes = await con.query(fetchQuery);
+    const searchRes = await con.query(fetchQuery);
 
-      res.json(searchRes);
-    })
-  )();
+    res.json(searchRes);
+  })();
 });
 
 blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: NextFunction) => {
