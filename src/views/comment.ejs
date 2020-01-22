@@ -1,0 +1,227 @@
+<% 
+// Passing Parameter from comment router
+const { blogID, pageID, paginationID, mode, paginationDivison, connectedUserID } = params;
+const { dbConfig, userDBConfig } = conf;
+const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
+
+%>
+
+<!DOCTYPE html>
+<html lang="kr" dir="ltr">
+
+<head>
+  <title>EV Comments</title>
+  <meta charset="utf-8">
+  <!-- 반응형 웹페이지를 위한 viewport 설정 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <!-- 댓글 서비스의 css 시트. -->
+  <link rel="stylesheet" href="./comment.css">
+</head>
+
+<body>
+  <div id="EV-Container" class="container">
+    <!-- 현재 댓글의 갯수, 로그인 되어 있는 ID를 나타내는 NavBar -->
+    <header id="EV-nav">
+      <ul>
+        <li id="EV-CommentNumber" class="nav-tab" onclick="location.reload();">Comments</li>
+
+        <% if(connectedUserID){ %>
+            <li id="EV-Login" style="float:right;" class="nav-tab" data-toggle="modal" data-target="#LogInModal">Login</li>
+        <% } else { %>
+            <li id="EV-Logout" style="float:right;" onclick="">Logout</li>
+            <li id="connectedUser-AvatarList" style="float:right;"><img id="connectedUser-Avatar" data-toggle="modal"
+                data-target="#UserInfoModal" class="img-fluid" src="../../public/profileImages/$userDefaultProfile.svg"
+                alt="Image For User Profile"></li>
+        <%  } %>
+
+      </ul>
+    </header>
+    <!-- 댓글 창들의 모음 컨테이너 -->
+    <div>
+      <div id="EV-UserInputArea">
+        <!-- Avatar (셋팅된 프로필 사진) -->
+        <!-- 댓글 입력 창 -->
+        <div class="textarea-outer col-sm-12">
+          <span id="Textarea-placeholder" onclick="textAreaClicked()">여기에 텍스트를 입력하세요..</span>
+          <p id="CommentArea" class="alignLeft" width="100%" tabindex="0" role="textbox" aria-multiline="true"
+            contenteditable="PLAINTEXT-ONLY" data-role="editable" class="text-right" title="Join the discussion..."></p>
+        </div>
+        <!-- 텍스트 에디터 내에 해당 태그를 붙여주는 버튼들이다. -->
+        <div id="EV-Buttons">
+          <ul>
+            <li id="EV-Buttons-B" onclick="editButtonClicked(this.id)"><b>B</b></li>
+            <li id="EV-Buttons-I" onclick="editButtonClicked(this.id)"><i>I</i></li>
+            <li id="EV-Buttons-U" onclick="editButtonClicked(this.id)"><u>U</u></li>
+            <li id="EV-Buttons-S" onclick="editButtonClicked(this.id)"><s>S</s></li>
+            <li id="EV-Buttons-CommentSubmit" onclick="editButtonClicked(this.id)" style="float: right;">제출
+            </li>
+          </ul>
+        </div>
+        <div id="recommendLoginAlert" class="alert alert-success alert-dismissible fade show" style="display: none;">
+          <p class="lead" style="font-size: 14px; color: #4c4c4c;">Ev Comment 서비스에 로그인하시겠습니까?<br>익명으로 댓글을
+            남기시려면 제출을 한 번 더 클릭해주세요.</p>
+        </div>
+      </div>
+      <hr>
+
+      <!-- 댓글 -->
+      <div id="EV-comment">
+        <ul>
+          <% if(commentsCnt < 1) { %>
+              <div class="alert alert-secondary alert-dismissible fade show">
+                <button type="button" class="close" aria-label="Close" data-dismiss="alert">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <p id="NoCommentWarning" class="lead" style="font-size: 14px; color: #4c4c4c;">등록된 댓글이 없습니다.</p>
+              </div>
+            <% } %>
+          
+          <% comments[0].map((item) => { %>
+
+            <li id="ev-comment-<%=item.CommentIndex%>" 
+                class="row comment <%=positiveClass%>">
+                <li id="EV-Logout" style="float:right;" onclick="">Logout</li>
+                <li id="connectedUser-AvatarList" style="float:right;"><img id="connectedUser-Avatar" data-toggle="modal" data-target="#UserInfoModal" class="img-fluid" src="<%=item.ProfileImageFileName%>" alt="Image For User Profile"></li>';
+              <div class="comment col-10">
+                <span class="comment-userID"><%=item.UserID%></span>
+                <span style="color: #777777; font-size: 12px;">&nbsp;&nbsp;&nbsp;<%=item.DateTime%></span>
+                <br>
+                <p id="comment-content-%s" class="comment-content"><%=item.Content%></p>
+                <%if(connectedUserID == item.UserID) {%>
+                  <span><img src="./img/trash-2.svg" width="16px" height="16px" onclick="deleteComment($(this).closest('li').attr('id'))"></span>
+                  <span><img src="./img/edit.svg" width="16px" height="16px" onclick="editComment($(this).parent().prevAll('p').attr('id'), $(this).parent().next())"></span>
+                  <span style="display: none;" class="sendCommentUpdateButton"><img src="./img/send.svg" width="16px" height="16px" onclick="sendCommentUpdateMessage($(this).parent().prevAll('p').attr('id'))"></span>
+                <%}%>
+              </div>
+            </li>
+            <hr>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+
+    <div id="UserInfoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div id="smallModal" class="container" style="text-align: center;">
+            <p id="Modal_USER_ID" class="lead"><%=connectedUserID%></p><br>
+            <img id="userDefaultProfile" class="img-fluid rounded-circle" src="" alt="Image For User Profile">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="LogInModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">EV Comment Service 로그인</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form action="" method="post" accept-charset="utf-8">
+              <div class="form-group">
+                <label for="ID">ID</label>
+                <input id="ID" name="ID" type="text" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="PW">PW</label>
+                <input id="PW" name="PW" type="password" class="form-control" required>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <button type="submit" class="btn btn-primary">로그인</button>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="EV-Pagination">
+      <%
+      
+                // 1 페이지에 있는 경우 왼쪽 버튼을 눌러도 1 페이지로 이동
+                // $laquo_paginationID = $PaginationID == 1 ? 1 : $PaginationID - 1;
+                // $raquo_paginationID = $PaginationID == $PaginationEnd ? $PaginationEnd : $PaginationID + 1;
+      
+                // echo sprintf('
+                //   <a href="https://evcommentservice.ga/Comment.php?db=%s&pageID=%s&mode=%s&paginationID=%s">&laquo;</a>
+                // ', $URL_ID, $PageID, $EmotionalAnalysisMode, $laquo_paginationID);
+      
+                // // $PaginationDivision (페이지 나누는 기준)
+                // // $PaginationID (현재 페이지)
+                // // $PaginationEnd (끝 페이지)
+      
+                // // 페이지네이션 할 수 있는 숫자를 몇 개까지 표시할 것인지 나타내는 int형 변수
+                // // (값을 바꿔도 되지만, 웹페이지 디자인 상 홀수여야 균형이 맞아보이니 주의)
+                // $paginatorsNumber = 5;
+      
+                // // 현재 페이지가 앞 쪽에 치우친 경우 (1부터 순차대로 $paginatorsNumber 수 만큼 출력)
+                // if($PaginationEnd < $paginatorsNumber || $PaginationID - (int)($paginatorsNumber / 2) <= 0){
+                //   $startPoint = 1;
+                // }
+      
+                // // 현재 페이지가 뒤 쪽에 치우친 경우 (순차대로 $paginatorsNumber 수 만큼 출력)
+                // else if($PaginationEnd - $PaginationID < (int)($paginatorsNumber / 2)){
+      
+                //   $startPoint = $PaginationEnd - $paginatorsNumber + 1;
+      
+                // }
+                // // 페이지를 중앙에 놓으면 되는 경우
+                // else {
+                //   $startPoint = $PaginationID - (int)($paginatorsNumber / 2);
+                // }
+      
+                // for($i = $startPoint; $i < $startPoint + $paginatorsNumber; $i++){
+      
+                //   // 반복문이 끝나기 전 Paginator가 끝나면 break
+                //   if($i > $PaginationEnd) break;
+      
+                //   // $paginationID와 같은 Paginator에 Active 클래스를 달아놓는다.
+                //   if($i == $PaginationID) $Active = 'active';
+                //   else $Active = '';
+      
+                //   echo sprintf('
+                //     <a class="%s" href="https://evcommentservice.ga/Comment.php?db=%s&pageID=%s&mode=%s&paginationID=%s">%s</a>
+                //   ', $Active, $URL_ID, $PageID, $EmotionalAnalysisMode, $i, $i);
+                // }
+      
+                // echo sprintf('
+                //   <a href="https://evcommentservice.ga/Comment.php?db=%s&pageID=%s&mode=%s&paginationID=%s">&raquo;</a>
+                // ', $URL_ID, $PageID, $EmotionalAnalysisMode, $raquo_paginationID);
+         %>
+    </div>
+
+    <div id="ReportConfirmModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <h4 id="ReportCommentContent" class="text-center" style="font-size: 15px; margin-bottom: 20px;">
+            </h4>
+            <div class="text-center" style="width: 70%; margin: 0 auto">
+              <a class="btn btn-sm btn-danger btn-yes btn-block" style="color:#ffffff;" data-dismiss="modal"
+                onclick="reportComment()">네</a>
+              <a class="btn btn-sm btn-success btn-no btn-block" style="color:#ffffff;" data-dismiss="modal">아니오</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer id="EV-Footer">
+      <p style="padding-top: 7px;">&copy; 2019 Team EV</p>
+    </footer>
+  </div>
+</body>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.10.1/js/mdb.min.js"></script>
+<script src="./comment.js"></script>
+
+</html>
