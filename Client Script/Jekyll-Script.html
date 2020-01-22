@@ -1,0 +1,25 @@
+<!-- include this file to your blog -->
+{% if site.ev_username %}
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+
+<script type="text/javascript">
+
+  var $JekyllParams = {
+    blogOwner: "{{site.ev_username}}",
+    siteURL: "{{site.url}}",
+    evMode: "{{site.ev_mode}}",
+    pageIdentifier: "{{page.id}}",
+    pageTitle: "{{page.title}}"
+  };
+
+  (function () {
+    var embededd_js = document.createElement('script');
+    embededd_js.type = 'text/javascript';
+    embededd_js.async = true;
+    embededd_js.src = 'http://localhost:8000/js/auth.js';
+    document.getElementById('EV-Start').appendChild(embededd_js);
+  })();
+
+</script>
+
+{% endif %}
