@@ -1,6 +1,6 @@
 <% 
 // Passing Parameter from comment router
-const { blogID, pageID, paginationID, mode, paginationDivison, connectedUserID } = params;
+const { blogID, pageID, mode, connectedUserID } = params;
 const { dbConfig, userDBConfig } = conf;
 const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
 
@@ -78,7 +78,7 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
               </div>
             <% } %>
           
-          <% comments[0].map((item) => { %>
+          <% comments.map((item) => { %>
 
             <%
             // 댓글의 긍정도에 따라, class를 달리 붙임.

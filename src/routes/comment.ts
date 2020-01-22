@@ -15,13 +15,14 @@ const comment = express.Router();
 // 전송받은 데이터를 비동기적으로 검증한다.
 // DB엔 ajax로 php에 요청해 접근한다
 comment.get(
-  "URL-Verification/:userID/:pageID/:url/:mode/:title",
+  "/URL-Verification",
   async (req: Request, res: Response) => {
-    const { userID, pageID, url, mode, title } = req.params;
 
-    const urlID = shortHash(url);
+    const { userID, pageID, url, mode, title, paginationDivision } = req.query;
 
-    let isNotValid : boolean = false;
+    const urlID = shortHash.unique(url);
+
+    let isValid : boolean = true;
 
     if(!userID || !pageID || !url || !mode || !title) {
       res.render("notSetValue");
@@ -31,30 +32,31 @@ comment.get(
     await sql.connect(userDBConfig, async con => {
       const validUrl = `select * from usersurltbl where URL = '${url}'`
       const fetchingData = await con.query(validUrl);
-      isNotValid = (fetchingData[0].length === 0);
+      isValid = fetchingData ? true : false;
     })();
 
-    if(isNotValid) {
+    if(!isValid){
       res.render("notRegisteredUrl");
       return;
     }
     
     await sql.connect(dbConfig(urlID, 4), async con => {
       // 게시글 (테이블) 이 존재하지 않는 경우
-      const tableExist = `show tables like '${pageID}'`;
+      const tableExistQuery = `show tables like '${pageID}'`;
 
-      const noTable = await con.query(tableExist)[0].length;
+      const tableExist = await con.query(tableExistQuery);
 
-      if(noTable) {
+      if(!tableExist) {
         const createTbl = 
-          `create table \`$URL_ID\`.\`$PageIdentifier\`(
+          `create table \`${urlID}\`.\`${pageID}\`(
             \`CommentUserId\` varchar(20) not null,
             \`Content\` mediumtext not null,
             \`DateTime\` datetime not null,
             \`ProfileImageFileName\` varchar(25),
             \`CommentIndex\` int(11) not null auto_increment,
             \`EmotionalAnalysisValue\` float,
-            PRIMARY KEY(\`CommentIndex\`)`;
+            PRIMARY KEY(\`CommentIndex\`) 
+            )`;
 
         await con.query(createTbl);
 
@@ -72,11 +74,9 @@ comment.get(
         // 게시글 (테이블)이 존재하는 경우
         const confirmTitle = `select Title from pagetitlepairs where PageID = '${pageID}'`;
 
-        const oldTitle = await con.query(confirmTitle)[0].Title;
+        const oldTitle = await con.query(confirmTitle);
 
-        console.log(oldTitle);
-
-        if (title !== oldTitle) {
+        if (title !== oldTitle.Title) {
           const updateTitle = `
             update pagetitlepairs set
             Title = '${title}'
@@ -86,28 +86,27 @@ comment.get(
         }
       }
 
-      console.log(process.env.API);
-
       res.render("commentIFrame", {
         api: process.env.API,
         blogID: urlID,
         pageID,
         mode,
         paginationID: 1,
-        paginationDivision: 10
+        paginationDivision
       });
     })();
   }
 );
 
 comment.get(
-  "/:blogID/:pageID/:paginationID/:mode/:paginationDivision",
-  (req: Request, res: Response) => {
+  "/",
+  async (req: Request, res: Response) => {
+
     const token = req.body.token;
 
-    const { blogID, pageID, paginationID, mode, connectedUserID } = req.params;
+    const { blogID, pageID, paginationID, mode, connectedUserID } = req.query;
 
-    const paginationDivision = parseInt(req.params.paginationDivision);
+    const paginationDivision = parseInt(req.query.paginationDivision);
 
     let comments;
     let commentsCnt;
@@ -119,18 +118,19 @@ comment.get(
     if (token) userID = jwt.verify(token, process.env.JWT_SECRET).ID;
 
     // Fetch title
-    sql.connect(dbConfig(blogID, 4), async (con) => {
+    await sql.connect(dbConfig(blogID, 4), async (con) => {
       const fetchTitle = `select Title from pagetitlepairs where PageID = '${pageID}'`;
-      title = await con.query(fetchTitle)[0].Title;
+      title = await con.query(fetchTitle).Title;
     })();
 
     // Calculate pagination info
-    sql.connect(dbConfig(blogID, 4), async (con) => { 
-      const fetchComments = `select * from ${pageID} order by CommentIndex desc limit ${paginationDivision}`;
+    await sql.connect(dbConfig(blogID, 4), async (con) => { 
+      const fetchComments = `select * from \`${pageID}\` order by CommentIndex desc limit ${paginationDivision}`;
+      
       comments = await con.query(fetchComments);
 
-      commentsCnt = comments[0].length;
-    
+      commentsCnt = comments.length;
+
       // 몇 페이지가 끝인 지 계산
       if((commentsCnt % paginationDivision) == 0) {
         paginationEnd = commentsCnt / paginationDivision;

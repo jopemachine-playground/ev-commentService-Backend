@@ -5,23 +5,28 @@ var evCommentServiceURL = "http://localhost:8000";
 // 성공한 경우에 한정해, 다시 VisitorCounter.php에 데이터를 전송해 방문 수를 체크함
 (async function(){
 
-  let {evMode, blogOwner, pageIdentifier, siteURL, pageTitle} = $JekyllParams;
+  let { evMode, blogOwner, pageIdentifier, siteURL, pageTitle, paginationDivision } = $JekyllParams;
 
   // evMode는 기본값으로 full을 갖는다.
   if(evMode == null) evMode = 'full';
-  // 나머지 인자들은 기본값을 가질 수 없으므로, 해당 인자로 전송된 값이 없다면 서버로 전송하지 않는다.
+  // 아래 인자들은 기본값을 가질 수 없으므로, 해당 인자로 전송된 값이 없다면 서버로 전송하지 않는다.
   if(blogOwner == null || pageIdentifier == null || siteURL == null || pageTitle == null) return;
 
   $.ajax({
-    crossOrigin: true,
+    headers: {
+      "accept": "application/json; charset=utf-8",
+      "Access-Control-Allow-Origin":"*",
+    },
     type: "GET",
-    url: evCommentServiceURL + "/Comment/URL-Verification",
+    url: `${evCommentServiceURL}/Comment/URL-Verification`,
+    contentType: "application/x-www-form-urlencoded; charset=UTF-8", 
     data: {
       userID: blogOwner,
       pageID: pageIdentifier,
       url: siteURL,
       mode: evMode,
-      title: pageTitle
+      title: pageTitle,
+      paginationDivision
     },
     dataType: "HTML",
 

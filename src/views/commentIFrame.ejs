@@ -1,7 +1,12 @@
+<% const srcUrl = 
+  `${api}/Comment?
+    blogID=${blogID}&
+    pageID=${pageID}&
+    mode=${mode}&
+    paginationID=${paginationID}&
+    paginationDivision=${paginationDivision}`
+%>
+
 <iframe id='EV-Iframe' style='width:100%; min-height: 400px; border:none;' scrolling='no'
-  src='<%=api%>?
-       blogID=<%=blogID%>&
-       pageID=<%=pageID%>&
-       mode=<%=mode%>&
-       paginationID=<%=paginationID%>'>
+  src='<%=srcUrl%>'>
 </iframe>
