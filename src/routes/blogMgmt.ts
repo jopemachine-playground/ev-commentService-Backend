@@ -37,22 +37,13 @@ blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: Nex
 
   let duplicateURL;
 
-  await sql.connect(userDBConfig,
-    (async (con: any) => {
-      const idDupCheck = `select * from usersurltbl where URLID = '${urlID}'`;
-      duplicateURL = await con.query(idDupCheck);
-    })
-  )();
+  await sql.connect(userDBConfig, async (con: any) => {
+    const idDupCheck = `select * from usersurltbl where URLID = '${urlID}'`;
+    duplicateURL = await con.query(idDupCheck);
 
-  if(!R.isEmpty(duplicateURL)){
-    res.json({ VALID : false });
-    return;
-  }
+    if (!R.isEmpty(duplicateURL)) return;
 
-  sql.connect(userDBConfig,
-    (async (con: any) => {
-      const insertNewService =
-        `insert into usersurltbl (
+    const insertNewService = `insert into usersurltbl (
           URLID,
           URLTitle,
           URL,
@@ -63,14 +54,16 @@ blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: Nex
           '${blogURL}',
           '${userID}'
           )`;
-      await con.query(insertNewService);
-    })
-  )();
+    await con.query(insertNewService);
 
-  await sql.connect(userDBConfig, async (con: any) => {
     const createDB = `create database ${urlID} charset 'utf8mb4' collate utf8mb4_unicode_ci`;
     await con.query(createDB);
   })();
+
+  if (!R.isEmpty(duplicateURL)) {
+    res.json({ VALID: false });
+    return;
+  }
 
   sql.connect(dbConfig(urlID, 4), async (con: any) => {
     const createTbl = `
@@ -107,24 +100,15 @@ blogMgmt.post("/Delete", verifyToken, (req: Request, res: Response) => {
 
   const { blogID } = req.body;
 
-  sql.connect(userDBConfig,
-    (async (con: any) => {
-      const deleteRecord =
-        `delete from usersurltbl where URLID = '${blogID}' and UserID = '${userID}'`;
-      await con.query(deleteRecord);
-    })
-  )();
+  sql.connect(userDBConfig, async (con: any) => {
+    const deleteRecord = `delete from usersurltbl where URLID = '${blogID}' and UserID = '${userID}'`;
+    await con.query(deleteRecord);
 
-  sql.connect(userDBConfig,
-    (async (con: any) => {
-      const dropDatabase =
-        `drop database ${blogID}`;
-      await con.query(dropDatabase);
-    })
-  )();
+    const dropDatabase = `drop database ${blogID}`;
+    await con.query(dropDatabase);
+  })();
 
   res.json({ VALID: true });
-  
 });
 
 
