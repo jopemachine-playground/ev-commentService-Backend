@@ -4,12 +4,8 @@ var EmotionalAnalysisServiceReportURL = "https://emotionanalysisservice.ga/chang
 
 var API = `http://localhost:8000`;
 
-// onload 이벤트 후 값을 갖는 객체
-// php에서 특정 태그에 값을 채우는 방식으로 js로 변수를 전달함
-var phpVars;
-
 var params = {
-  urlID   : getParameterByName('db'),
+  blogID   : getParameterByName('blogID'),
   pageID  : getParameterByName('pageID'),
   evMode  : getParameterByName('mode')
 }
@@ -20,13 +16,6 @@ var reportComment;
 const log = (logContent) => { console.log("Log from evCommentService : " + logContent); };
 
 window.onload = function(){
-
-  phpVars = {
-    connectedUserID       : $('#EV-ConnectedUserID').html(),
-    profileImageFileName  : $('#EV-ConnectedUserIDProfileImageFileName').html(),
-    postTitle             : $('#EV-PostTitle').html()
-  };
-
   containerLoad();
 }
 
@@ -84,24 +73,20 @@ function verifyComment(){
 // 제출 버튼을 클릭해 댓글을 달 때 실행되는 함수
 function postComment(){
 
-  let { postTitle, profileImageFileName, connectedUserID } = phpVars;
-
   // 로그인 되어 있지 않은 경우 우선 로그인을 권유하는 알림을 띄운다
-  if(connectedUserID == '' && !($('#recommendLoginAlert').is(":visible"))){
-    $('#recommendLoginAlert').show();
-    onHeightChange();
-    return;
-  }
+  // if(connectedUserID == '' && !($('#recommendLoginAlert').is(":visible"))){
+  //   $('#recommendLoginAlert').show();
+  //   onHeightChange();
+  //   return;
+  // }
 
   // url을 PHP로 넘겨야 하기 때문에 주소 값을 파싱해서 파라미터 값을 php로 전송해야 한다
   const commentContent = $('#CommentArea').html();
 
   let arg = {
       commentContent        : commentContent,
-      urlID                 : params.urlID,
+      blogID                : params.blogID,
       pageID                : params.pageID,
-      profileImageFileName  : profileImageFileName,
-      postTitle             : postTitle
   };
 
   switch (params.evMode) {
@@ -165,10 +150,9 @@ function reportComment(){
 function deleteComment(id){
 
   let arg = {
-    userID    : phpVars.connectedUserID,
     // id 중 숫자만 추출
     CommentID : id.replace(/[^0-9]/g,""),
-    urlID     : params.urlID,
+    blogID     : params.blogID,
     pageID    : params.pageID
   };
 
@@ -262,9 +246,8 @@ const editComment = editCommentWrap();
 function sendCommentUpdateMessage(contentID){
 
   let arg = {
-      userID          : phpVars.connectedUserID,
       CommentID       : contentID.replace(/[^0-9]/g,""),
-      urlID           : params.urlID,
+      blogID           : params.blogID,
       pageID          : params.pageID,
       commentContent  : $('#' + contentID).html()
   };
@@ -308,5 +291,5 @@ function login() {
   }
 
   ajaxRequest("POST", `${API}/Comment/Login`, arg, 
-    () => {}, (err) => { console.log(err); })
+    () => { location.reload(); }, (err) => { console.log(err); })
 }

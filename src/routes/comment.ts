@@ -3,7 +3,6 @@ import { sql } from "../sql";
 import express from "express";
 import { dbConfig, userDBConfig } from "../dbconfig";
 import { verifyToken, isNotLoggedIn, isLoggedIn } from "../authentification";
-import jwt from "jsonwebtoken";
 import shortHash from "shorthash";
 import dotenv from "dotenv";
 import passport from "passport";
@@ -142,36 +141,42 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
 
 comment.post("/Add", async (req: Request, res: Response) => {
 
-  const { blogID, paginationID, mode } = req.query; 
+  let { commentContent, emotionalAnalysisValue, pageID, blogID } = req.body;
 
-  let { commentContent, emotionalAnalysisValue, profileImageFileName, postTitle, pageID } = req.body;
+  let profileImageFileName: string;
+  let connectedUserID = req.user;
 
-  let connectedUserID = req.user ? req.user : "Anonymous";
-
-  if(!profileImageFileName) profileImageFileName = "NULL";
-  else profileImageFileName = `'${profileImageFileName}'`;
+  if (req.user) {
+    await sql.connect(userDBConfig, async con => {
+      const fetchProfileImageName = `select ProfileImageName from usersinfotbl where ID = '${connectedUserID}'`;
+      const ret = await con.query(fetchProfileImageName);
+      (ret && (profileImageFileName = `'${ret[0].ProfileImageName}'`)) || (profileImageFileName = "NULL");
+    })();
+  } else {
+    connectedUserID = "Anonymous";
+    profileImageFileName = "NULL";
+  }
 
   if(!emotionalAnalysisValue) emotionalAnalysisValue = 0;
 
   await sql.connect(dbConfig(blogID, 4), async con => { 
     const insertComment = `
-      Insert INTO  \` . ${pageID} . \`(
-        CommentUserId,
-        Content,
-        DateTime,
-        ProfileImageFileName,
-        EmotionalAnalysisValue
-        ) VALUES(
-        '${connectedUserID}',
-        '${commentContent}',
-        Now(),
-        ${profileImageFileName},
-        '${emotionalAnalysisValue}'
-    )`;
+      insert into  \`${pageID}\`(
+          CommentUserId,
+          Content,
+          DateTime,
+          ProfileImageFileName,
+          EmotionalAnalysisValue
+          ) VALUES(
+          '${connectedUserID}',
+          '${commentContent}',
+          Now(),
+          ${profileImageFileName},
+          ${emotionalAnalysisValue}
+      )`;
 
-    con.query(insertComment);
+    await con.query(insertComment);
   })();
-
 });
 
 comment.post("/Delete", (req: Request, res: Response) => {
@@ -199,8 +204,7 @@ comment.post("/Login", isNotLoggedIn, (req: Request, res: Response, next: NextFu
         console.log(loginError);
         return next(loginError);
       }
-      console.log("login");
-
+      
       return res.redirect('back');
     });
   

@@ -40,7 +40,8 @@ blogMgmt.post("/Add", verifyToken, async (req: Request, res: Response, next: Nex
 
     if (!R.isEmpty(duplicateURL)) return;
 
-    const insertNewService = `insert into usersurltbl (
+    const insertNewService = 
+      `insert into usersurltbl (
           URLID,
           URLTitle,
           URL,
