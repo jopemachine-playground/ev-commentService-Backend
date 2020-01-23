@@ -1,6 +1,6 @@
 <% 
 // Passing Parameter from comment router
-const { blogID, pageID, mode, connectedUserID } = params;
+const { blogID, pageID, mode } = params;
 const { dbConfig, userDBConfig } = conf;
 const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
 
@@ -27,7 +27,7 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
       <ul>
         <li id="EV-CommentNumber" class="nav-tab" onclick="location.reload();">Comments</li>
 
-        <% if(connectedUserID){ %>
+        <% if(!connectedUserID){ %>
             <li id="EV-Login" style="float:right;" class="nav-tab" data-toggle="modal" data-target="#LogInModal">Login</li>
         <% } else { %>
             <li id="EV-Logout" style="float:right;" onclick="">Logout</li>
@@ -87,7 +87,7 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
 
             <li id="ev-comment-<%=item.CommentIndex%>" 
                 class="row comment <%=positiveClass%>">
-                <li id="EV-Logout" style="float:right;" onclick="">Logout</li>
+                <li id="EV-Logout" style="float:right;" onclick="logout()">Logout</li>
                 <li id="connectedUser-AvatarList" style="float:right;"><img id="connectedUser-Avatar" data-toggle="modal" data-target="#UserInfoModal" class="img-fluid" src="<%=item.ProfileImageFileName%>" alt="Image For User Profile"></li>';
               <div class="comment col-10">
                 <span class="comment-userID"><%=item.UserID%></span>
@@ -129,7 +129,7 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
             </button>
           </div>
           <div class="modal-body">
-            <form action="" method="post" accept-charset="utf-8">
+            <form accept-charset="utf-8" action="javascript:void(0);" onsubmit="() => {return false;}">
               <div class="form-group">
                 <label for="ID">ID</label>
                 <input id="ID" name="ID" type="text" class="form-control" required>
@@ -140,7 +140,7 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                <button type="submit" class="btn btn-primary">로그인</button>
+                <button type="submit" class="btn btn-primary" onclick="login()">로그인</button>
               </div>
           </div>
         </div>

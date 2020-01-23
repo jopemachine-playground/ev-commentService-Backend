@@ -11,16 +11,21 @@ import cookieSession from 'cookie-session';
 import multer from 'multer';
 import flash from "connect-flash";
 import path from "path";
-import morgan from "morgan";
+import passport from "passport";
+import passportConfig from "./passport/passportConfig";
 import dotenv from "dotenv";
 
 const app = express();
+passportConfig(passport);
 
 // dotenv setting
 dotenv.config();
 
 // cors setting
 app.use(cors());
+
+// static file path setting
+app.use(express.static(path.join(__dirname, '/../' ,'public')));
 
 // multer setting
 app.use(multer({
@@ -36,16 +41,13 @@ app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// static file path setting
-app.use(express.static(path.join(__dirname, '/../' ,'public')));
+app.use(express.urlencoded({ extended: true }));
 
 // cookie, session setting
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressSession({
-  secret: '',
+  secret: 'secret key',
   resave: true,
   saveUninitialized: false,
   cookie: {
@@ -57,6 +59,10 @@ app.use(expressSession({
 
 app.use(flash());
 
+// passport setting
+app.use(passport.initialize());
+app.use(passport.session());
+
 // routing
 app.use('/URL-Register', blogMgmtRouter);
 app.use('/Comment', commentRouter);
@@ -64,7 +70,7 @@ app.use('/', userRouter);
 
 // 404 error
 app.use(function(req, res, next) {
-  console.log("404 not found : " + req.url);
+  console.log(`404 not found:: Method:${req.method}, Url: ${req.url}`);
   next(createError(404));
 });
 

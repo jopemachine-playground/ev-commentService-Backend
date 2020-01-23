@@ -299,3 +299,14 @@ function sendCommentUpdateMessage(contentID){
       break;
   }
 }
+
+function login() {
+
+  let arg = {
+    ID: $('#ID').val(),
+    PW: $('#PW').val()
+  }
+
+  ajaxRequest("POST", `${API}/Comment/Login`, arg, 
+    () => {}, (err) => { console.log(err); })
+}

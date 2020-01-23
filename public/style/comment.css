@@ -215,7 +215,7 @@
 
 #smallModal {
   padding: 15px;
-  background-image: url("../img/userProfileBackImage.png"); }
+  background-image: url("../image/userProfileBackImage.png"); }
 
 @media screen and (max-width: 411px) {
   .comment-avatar {
@@ -223,5 +223,3 @@
 @media screen and (min-width: 412px) {
   .comment-avatar {
     display: default; } }
-
-/*# sourceMappingURL=comment.css.map */
