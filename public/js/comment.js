@@ -283,7 +283,6 @@ function sendCommentUpdateMessage(contentID){
 }
 
 function login() {
-
   let arg = {
     ID: $('#ID').val(),
     PW: $('#PW').val()
@@ -291,4 +290,8 @@ function login() {
 
   ajaxRequest("POST", `${API}/Comment/Login`, arg, 
     () => { location.reload(); }, (err) => { log(err); })
+}
+
+function logout(){
+  ajaxRequest("GET", `${API}/Comment/Logout`, {}, () => { location.reload(); })
 }

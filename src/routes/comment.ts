@@ -226,7 +226,7 @@ comment.post("/Login", isNotLoggedIn, (req: Request, res: Response, next: NextFu
 comment.get("/Logout", isLoggedIn, (req: Request, res: Response) => {
   req.logout();
   req.session.destroy();
-  res.redirect('back');
+  res.json({ VALID: true });
 });
 
 export default comment;
