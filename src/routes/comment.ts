@@ -21,7 +21,7 @@ comment.get("/URL-Verification", async (req: Request, res: Response) => {
   let isValid: boolean = true;
 
   if (!userID || !pageID || !url || !mode || !title) {
-    res.render("notSetValue");
+    res.render("error/notSetValue");
     return;
   }
 
@@ -32,7 +32,7 @@ comment.get("/URL-Verification", async (req: Request, res: Response) => {
   })();
 
   if (!isValid) {
-    res.render("notRegisteredUrl");
+    res.render("error/notRegisteredUrl");
     return;
   }
 
@@ -97,7 +97,7 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
   const { blogID, pageID, mode } = req.query;
 
   if (!pageID || !blogID || !mode) {
-    res.render("notSetValue");
+    res.render("error/notSetValue");
     return;
   }
 
