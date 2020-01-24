@@ -2,7 +2,7 @@
 // Passing Parameter from comment router
 const { blogID, pageID, mode } = params;
 const { dbConfig, userDBConfig } = conf;
-const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
+let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
 
 %>
 
@@ -152,57 +152,70 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
     </div>
     <div id="EV-Pagination">
       <%
+        const laquo_paginationID = paginationID === 1 ? 1: paginationID - 1;
+        const raquo_paginationID = paginationEnd ? paginationEnd : paginationID - 1;
+
+        const makeHref = (info) => {
+          return `${info.api}/Comment/Fetch?` +
+                    `blogID=${info.blogID}&` +
+                    `pageID=${info.pageID}&` +
+                    `mode=${info.mode}&` +
+                    `paginationID=${info.paginationID}&` +
+                    `paginationDivision=${info.paginationDivision}`;
+        }
+
+        const laquo_href = makeHref({
+          api, blogID, pageID, mode, paginationDivision,
+          paginationID: laquo_paginationID
+        });
+
+        const raquo_href = makeHref({
+          api, blogID, pageID, mode, paginationDivision,
+          paginationID: raquo_paginationID 
+        });
+      %>      
       
-                // 1 페이지에 있는 경우 왼쪽 버튼을 눌러도 1 페이지로 이동
-                // $laquo_paginationID = $PaginationID == 1 ? 1 : $PaginationID - 1;
-                // $raquo_paginationID = $PaginationID == $PaginationEnd ? $PaginationEnd : $PaginationID + 1;
-      
-                // echo sprintf('
-                //   <a href="https://evcommentservice.ga/Comment.php?db=%s&pageID=%s&mode=%s&paginationID=%s">&laquo;</a>
-                // ', $URL_ID, $PageID, $EmotionalAnalysisMode, $laquo_paginationID);
-      
-                // // $PaginationDivision (페이지 나누는 기준)
-                // // $PaginationID (현재 페이지)
-                // // $PaginationEnd (끝 페이지)
-      
-                // // 페이지네이션 할 수 있는 숫자를 몇 개까지 표시할 것인지 나타내는 int형 변수
-                // // (값을 바꿔도 되지만, 웹페이지 디자인 상 홀수여야 균형이 맞아보이니 주의)
-                // $paginatorsNumber = 5;
-      
-                // // 현재 페이지가 앞 쪽에 치우친 경우 (1부터 순차대로 $paginatorsNumber 수 만큼 출력)
-                // if($PaginationEnd < $paginatorsNumber || $PaginationID - (int)($paginatorsNumber / 2) <= 0){
-                //   $startPoint = 1;
-                // }
-      
-                // // 현재 페이지가 뒤 쪽에 치우친 경우 (순차대로 $paginatorsNumber 수 만큼 출력)
-                // else if($PaginationEnd - $PaginationID < (int)($paginatorsNumber / 2)){
-      
-                //   $startPoint = $PaginationEnd - $paginatorsNumber + 1;
-      
-                // }
-                // // 페이지를 중앙에 놓으면 되는 경우
-                // else {
-                //   $startPoint = $PaginationID - (int)($paginatorsNumber / 2);
-                // }
-      
-                // for($i = $startPoint; $i < $startPoint + $paginatorsNumber; $i++){
-      
-                //   // 반복문이 끝나기 전 Paginator가 끝나면 break
-                //   if($i > $PaginationEnd) break;
-      
-                //   // $paginationID와 같은 Paginator에 Active 클래스를 달아놓는다.
-                //   if($i == $PaginationID) $Active = 'active';
-                //   else $Active = '';
-      
-                //   echo sprintf('
-                //     <a class="%s" href="https://evcommentservice.ga/Comment.php?db=%s&pageID=%s&mode=%s&paginationID=%s">%s</a>
-                //   ', $Active, $URL_ID, $PageID, $EmotionalAnalysisMode, $i, $i);
-                // }
-      
-                // echo sprintf('
-                //   <a href="https://evcommentservice.ga/Comment.php?db=%s&pageID=%s&mode=%s&paginationID=%s">&raquo;</a>
-                // ', $URL_ID, $PageID, $EmotionalAnalysisMode, $raquo_paginationID);
-         %>
+      <a href="<%=laquo_href%>">&laquo;</a>
+
+      <%
+        // 페이지네이션 할 수 있는 숫자를 몇 개까지 표시할 것인지 나타내는 int형 변수
+        // (값을 바꿔도 되지만, 웹페이지 디자인 상 홀수여야 균형이 맞아보이니 주의)
+        const paginatorsNumber = 5;
+        let startPoint;
+
+        // 현재 페이지가 앞 쪽에 치우친 경우 (1부터 순차대로 $paginatorsNumber 수 만큼 출력)
+        if(paginationEnd < paginatorsNumber || paginationID - (paginatorsNumber / 2) <= 0){
+          startPoint = 1;
+        }
+        // 현재 페이지가 뒤 쪽에 치우친 경우 (순차대로 $paginatorsNumber 수 만큼 출력)
+        else if(paginationEnd - paginationID < (paginatorsNumber / 2)){
+          startPoint = paginationEnd - paginatorsNumber + 1;
+        }
+        // 페이지를 중앙에 놓으면 되는 경우
+        else {
+          startPoint = paginationID - (paginatorsNumber / 2);
+        }
+      %>
+
+      <% for(let i = startPoint; i < startPoint + paginatorsNumber; i++){ %>
+        <% 
+          if(i > paginationEnd) break;
+          let active = "";
+          // $paginationID와 같은 Paginator에 Active 클래스를 달아놓는다.
+          if(i == paginationID) active = 'active';
+
+          const link = makeHref({
+            api, blogID, pageID, mode, paginationDivision,
+            paginationID: i
+          }); 
+        %>
+          <a class="<%=active%>" 
+              href="<%=link%>">
+                    <%=i%>
+          </a>
+      <%}%>
+
+      <a href="<%=raquo_href%>">&raquo;</a>
     </div>
 
     <div id="ReportConfirmModal" class="modal fade" role="dialog">

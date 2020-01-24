@@ -94,13 +94,14 @@ comment.get("/URL-Verification", async (req: Request, res: Response) => {
 comment.get("/Fetch", async (req: Request, res: Response) => {
 
   const connectedUserID = req.user;
-  const { blogID, pageID, paginationID, mode } = req.query;
+  const { blogID, pageID, mode } = req.query;
 
   if (!pageID || !blogID || !mode) {
     res.render("notSetValue");
     return;
   }
 
+  const paginationID = parseInt(req.query.paginationID);
   const paginationDivision = parseInt(req.query.paginationDivision);
 
   let comments;
@@ -111,29 +112,41 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
 
   // Calculate pagination info
   await sql.connect(dbConfig(blogID, 4), async con => {
-    const fetchTitle = `select Title from pagetitlepairs where PageID = '${pageID}'`;
+    const fetchTitle = 
+      `select Title from pagetitlepairs where PageID = '${pageID}'`;
+
     title = await con.query(fetchTitle).Title;
 
-    const fetchComments = `select * from \`${pageID}\` order by CommentIndex desc limit ${paginationDivision}`;
-    comments = await con.query(fetchComments);
+    const fetchComments = 
+      `select * from \`${pageID}\` order by CommentIndex desc limit ${paginationDivision} offset ${paginationDivision * (paginationID - 1)}`;
 
-    commentsCnt = comments.length;
+    const calcCommentsCnt = 
+      `select count(*) as cnt from \`${pageID}\``;
+
+    comments = await con.query(fetchComments);
+    const fetchCommentsCnt = await con.query(calcCommentsCnt);
 
     // 몇 페이지가 끝인 지 계산
+    commentsCnt = fetchCommentsCnt[0].cnt;
+    
     if (commentsCnt % paginationDivision == 0) {
-      paginationEnd = commentsCnt / paginationDivision;
+      paginationEnd = Math.floor(commentsCnt / paginationDivision);
     } else {
-      paginationEnd = commentsCnt / paginationDivision + 1;
+      paginationEnd = Math.floor(commentsCnt / paginationDivision) + 1;
     }
   })();
 
   res.render("comment", {
     api: process.env.API,
     connectedUserID,
-    params: req.params,
+    params: req.query,
     comments,
     commentsCnt,
-    paginationInfo: { paginationID, paginationEnd, paginationDivision },
+    paginationInfo: { 
+      paginationID, 
+      paginationEnd, 
+      paginationDivision 
+    },
     conf: { dbConfig, userDBConfig },
     sql
   });
@@ -148,7 +161,9 @@ comment.post("/Add", async (req: Request, res: Response) => {
 
   if (req.user) {
     await sql.connect(userDBConfig, async con => {
-      const fetchProfileImageName = `select ProfileImageName from usersinfotbl where ID = '${connectedUserID}'`;
+      const fetchProfileImageName = 
+        `select ProfileImageName from usersinfotbl where ID = '${connectedUserID}'`;
+        
       const ret = await con.query(fetchProfileImageName);
       (ret && (profileImageFileName = `'${ret[0].ProfileImageName}'`)) || (profileImageFileName = "NULL");
     })();
