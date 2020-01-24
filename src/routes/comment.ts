@@ -195,8 +195,26 @@ comment.post("/Delete", isLoggedIn, (req: Request, res: Response) => {
 });
 
 comment.post("/Edit", (req: Request, res: Response) => {
+  const { CommentID, blogID, pageID, commentContent } = req.body;
 
+  const { emotionalAnalysisValue } = req.body;
 
+  sql.connect(dbConfig(blogID, 4), async con => {
+    let updateComment = 
+      `update \`${pageID}\` set
+        Content                 = '${commentContent}',`;
+
+    if(emotionalAnalysisValue) updateComment +=
+       `EmotionalAnalysisValue  = '${emotionalAnalysisValue}',`;
+
+       updateComment +=
+       `DateTime                = NOW()
+        WHERE CommentIndex      = '${CommentID}'`;
+
+    await con.query(updateComment);
+  })();
+
+  res.json({ VALID: true });
 });
 
 comment.post("/Login", isNotLoggedIn, (req: Request, res: Response, next: NextFunction) => {

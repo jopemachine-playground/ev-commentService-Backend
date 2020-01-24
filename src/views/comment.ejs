@@ -96,7 +96,8 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
                 <span class="comment-userID"><%=item.CommentUserId%></span>
                 <span style="color: #777777; font-size: 12px;">&nbsp;&nbsp;&nbsp;<%=item.DateTime%></span>
                 <br>
-                <p id="comment-content-%s" class="comment-content"><%=item.Content%></p>
+                <p id="comment-content-<%=item.CommentIndex%>"
+                   class="comment-content"><%=item.Content%></p>
                 <%if(connectedUserID === item.CommentUserId) {%>
                   <span><img src="<%=api%>/image/trash-2.svg" width="16px" height="16px" onclick="deleteComment($(this).closest('li').attr('id'))"></span>
                   <span><img src="<%=api%>/image/edit.svg" width="16px" height="16px" onclick="editComment($(this).parent().prevAll('p').attr('id'), $(this).parent().next())"></span>
