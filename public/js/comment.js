@@ -80,7 +80,6 @@ function postComment(){
   //   return;
   // }
 
-  // url을 PHP로 넘겨야 하기 때문에 주소 값을 파싱해서 파라미터 값을 php로 전송해야 한다
   const commentContent = $('#CommentArea').html();
 
   let arg = {
@@ -291,5 +290,5 @@ function login() {
   }
 
   ajaxRequest("POST", `${API}/Comment/Login`, arg, 
-    () => { location.reload(); }, (err) => { console.log(err); })
+    () => { location.reload(); }, (err) => { log(err); })
 }

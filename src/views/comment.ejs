@@ -30,7 +30,7 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
         <% if(!connectedUserID){ %>
             <li id="EV-Login" style="float:right;" class="nav-tab" data-toggle="modal" data-target="#LogInModal">Login</li>
         <% } else { %>
-            <li id="EV-Logout" style="float:right;" onclick="">Logout</li>
+            <li id="EV-Logout" style="float:right;" onclick="logout()">Logout</li>
             <li id="connectedUser-AvatarList" style="float:right;"><img id="connectedUser-Avatar" data-toggle="modal"
                 data-target="#UserInfoModal" class="img-fluid" src="<%=api%>/profileImages/$userDefaultProfile.svg"
                 alt="Image For User Profile"></li>
@@ -83,18 +83,21 @@ const { paginationID, paginationEnd, paginationDivison } = paginationInfo;
             <%
             // 댓글의 긍정도에 따라, class를 달리 붙임.
             const positiveClass = "comment-neutral";
+
+            // profile Image path
+            (!item.ProfileImageFileName) && (item.ProfileImageFileName = "$userDefaultProfile.svg");
+            const profileImagePath = `/profileImages/${item.ProfileImageFileName}`;
             %>
 
             <li id="ev-comment-<%=item.CommentIndex%>" 
                 class="row comment <%=positiveClass%>">
-                <li id="EV-Logout" style="float:right;" onclick="logout()">Logout</li>
-                <li id="connectedUser-AvatarList" style="float:right;"><img id="connectedUser-Avatar" data-toggle="modal" data-target="#UserInfoModal" class="img-fluid" src="<%=item.ProfileImageFileName%>" alt="Image For User Profile"></li>';
+                <img class="comment-avatar col-1.5 rounded-circle" width="48px" height="48px" class="img-fluid rounded-circle" src="<%=profileImagePath%>" alt="Image For User Profile">
               <div class="comment col-10">
-                <span class="comment-userID"><%=item.UserID%></span>
+                <span class="comment-userID"><%=item.CommentUserId%></span>
                 <span style="color: #777777; font-size: 12px;">&nbsp;&nbsp;&nbsp;<%=item.DateTime%></span>
                 <br>
                 <p id="comment-content-%s" class="comment-content"><%=item.Content%></p>
-                <%if(connectedUserID == item.UserID) {%>
+                <%if(connectedUserID === item.CommentUserId) {%>
                   <span><img src="<%=api%>/image/trash-2.svg" width="16px" height="16px" onclick="deleteComment($(this).closest('li').attr('id'))"></span>
                   <span><img src="<%=api%>/image/edit.svg" width="16px" height="16px" onclick="editComment($(this).parent().prevAll('p').attr('id'), $(this).parent().next())"></span>
                   <span style="display: none;" class="sendCommentUpdateButton"><img src="<%=api%>/image/send.svg" width="16px" height="16px" onclick="sendCommentUpdateMessage($(this).parent().prevAll('p').attr('id'))"></span>

@@ -128,7 +128,7 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
   })();
 
   res.render("comment", {
-    api: process.env.api,
+    api: process.env.API,
     connectedUserID,
     params: req.params,
     comments,
@@ -177,6 +177,8 @@ comment.post("/Add", async (req: Request, res: Response) => {
 
     await con.query(insertComment);
   })();
+
+  res.json({ VALID: true });
 });
 
 comment.post("/Delete", (req: Request, res: Response) => {
