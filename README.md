@@ -14,7 +14,7 @@ Emotion Visualization Comment Service is project for practice making a web servi
 
 - [**ev-commentService**][php] : PHP Service for providing component service.  
 
-- [**ev-backend**][django] : It is based on Django and includes an emotional analysis discriminator based on konlpy and tensorflow.
+- [**ev-backend**][django] : It is based on Django and includes an emotional analysis module based on konlpy and tensorflow.
 
 - [**ev-sentimentalAnalysis**][mod] : This is a comment analysis module within the server.
 
@@ -96,9 +96,13 @@ All svg files used in project are downloaded at [featherIcon][featherIcon]
 The procedure for registering on a Jekyll based blog is as follows.
 
 ```
-1 - Signup and signin https://evcommentservice.ga, Register your blog's URL to service. The form of the URL must be the same as right. (https:{domain}.ga)
+1 - Signup and signin https://evcommentservice.ga, Register your blog's URL to service. 
 
-2 - In your Jekyll blog, Add the following settings to the '_config.yml'. User ID is the same one that joined above.
+The form of the URL must be the same as right. (https:{domain}.ga)
+
+2 - In your Jekyll blog, Add the following settings to the '_config.yml'. 
+
+User ID is the same one that joined above.
 
 ev_username: {User ID}
 
@@ -117,9 +121,11 @@ Set one of the follwing values in the 'ev_mode' in your _config.yml
 
 ev_username: { full, binary, none, debug }
 
-full : Depending on the negative-positive degree of the comments, comment's color style is divided into 10 stages
+full : Depending on the negative-positive degree of the comments, 
+comment's color style is divided into 10 stages
 
-binary : Depending on the negative-positive degree of the comments, comment's color style is divided into 3 stages (Positive, Negative, Neutral)
+binary : Depending on the negative-positive degree of the comments, 
+comment's color style is divided into 3 stages (Positive, Negative, Neutral)
 
 none : Emotional analysis styles were not indicated. 
 
