@@ -8,9 +8,9 @@ Emotion Visualization Comment Service is project for practice making a web servi
 
 ## ⛷️ Relative Projects
 
-- [**Renewal Front**][front] : It was refactored  It is based on React. 
+- [**Renewal Front**][front] : It was refactoring version of 'ev-commentService'. It is based on React. 
 
-- [**Renewal Backend**][backend] : It is based on NodeJS. 
+- [**Renewal Backend**][backend] : It was refactoring version of 'ev-commentService'. It is based on NodeJS. 
 
 - [**ev-commentService**][php] : PHP Service for providing component service.  
 
@@ -112,7 +112,9 @@ ev_username: {User ID}
 4 - Create div tag that iframe tag will be it's child, and set it's id 'EV-Start'
 ```
 
-Bloggers can decide whether or not to apply an emotional analysis service to his blog comment service and how it will be styled. The usage is as follows.
+Bloggers can decide whether or not to apply an emotional analysis service to his blog comment service and how it will be styled.  
+
+The usage is as follows.
 
 (below ev_mode is 'full' for default)
 
