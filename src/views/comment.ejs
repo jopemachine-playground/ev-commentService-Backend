@@ -111,45 +111,6 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
       </div>
     </div>
 
-    <div id="UserInfoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
-      aria-hidden="true">
-      <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-          <div id="smallModal" class="container" style="text-align: center;">
-            <p id="Modal_USER_ID" class="lead"><%=connectedUserID%></p><br>
-            <img id="userDefaultProfile" class="img-fluid rounded-circle" src="" alt="Image For User Profile">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="LogInModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">EV Comment Service 로그인</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form accept-charset="utf-8" action="javascript:void(0);" onsubmit="() => {return false;}">
-              <div class="form-group">
-                <label for="ID">ID</label>
-                <input id="ID" name="ID" type="text" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label for="PW">PW</label>
-                <input id="PW" name="PW" type="password" class="form-control" required>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                <button type="submit" class="btn btn-primary" onclick="login()">로그인</button>
-              </div>
-          </div>
-        </div>
-      </div>
-    </div>
     <div id="EV-Pagination">
       <%
         const laquo_paginationID = paginationID === 1 ? 1: paginationID - 1;
@@ -218,21 +179,9 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
       <a href="<%=raquo_href%>">&raquo;</a>
     </div>
 
-    <div id="ReportConfirmModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-body">
-            <h4 id="ReportCommentContent" class="text-center" style="font-size: 15px; margin-bottom: 20px;">
-            </h4>
-            <div class="text-center" style="width: 70%; margin: 0 auto">
-              <a class="btn btn-sm btn-danger btn-yes btn-block" style="color:#ffffff;" data-dismiss="modal"
-                onclick="reportComment()">네</a>
-              <a class="btn btn-sm btn-success btn-no btn-block" style="color:#ffffff;" data-dismiss="modal">아니오</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <%- include("modal/reportConfirmModal") %>
+    <%- include("modal/loginModal") %>
+    <%- include("modal/userInfoModal") %>
 
     <footer id="EV-Footer">
       <p style="padding-top: 7px;">&copy; 2019 Team EV</p>
