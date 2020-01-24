@@ -181,11 +181,21 @@ comment.post("/Add", async (req: Request, res: Response) => {
   res.json({ VALID: true });
 });
 
-comment.post("/Delete", (req: Request, res: Response) => {
+comment.post("/Delete", isLoggedIn, (req: Request, res: Response) => {
+  const { CommentID, blogID, pageID } = req.body;
 
+  sql.connect(dbConfig(blogID, 4), async con => {
+    const deleteComment = 
+      `delete from \`${pageID}\` where CommentUserId = '${req.user}' and CommentIndex = ${CommentID}`;
+  
+    await con.query(deleteComment);
+  })();
+
+  res.json({ VALID: true });
 });
 
 comment.post("/Edit", (req: Request, res: Response) => {
+
 
 });
 
