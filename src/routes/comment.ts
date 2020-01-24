@@ -94,6 +94,7 @@ comment.get("/URL-Verification", async (req: Request, res: Response) => {
 comment.get("/Fetch", async (req: Request, res: Response) => {
 
   const connectedUserID = req.user;
+  let connectedUserInfo;
   const { blogID, pageID, mode } = req.query;
 
   if (!pageID || !blogID || !mode) {
@@ -109,6 +110,14 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
 
   let paginationEnd;
   let title;
+
+  if(req.user){
+    await sql.connect(userDBConfig, async con => {
+      const fetch = `select * from usersinfotbl where ID = '${req.user}'`;
+      const fetchRet = await con.query(fetch);
+      connectedUserInfo = fetchRet[0];
+    })();
+  }
 
   // Calculate pagination info
   await sql.connect(dbConfig(blogID, 4), async con => {
@@ -138,7 +147,7 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
 
   res.render("comment", {
     api: process.env.API,
-    connectedUserID,
+    connectedUserInfo,
     params: req.query,
     comments,
     commentsCnt,

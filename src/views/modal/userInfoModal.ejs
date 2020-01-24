@@ -3,8 +3,30 @@
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div id="smallModal" class="container" style="text-align: center;">
-        <p id="Modal_USER_ID" class="lead"><%=connectedUserID%></p><br>
-        <img id="userDefaultProfile" class="img-fluid rounded-circle" src="" alt="Image For User Profile">
+        <p id="Modal_USER_ID" class="lead"><%=connectedUserInfo ? connectedUserInfo.ID : "" %></p><br>
+        <% 
+          let ImgSrc = "";
+          let SignUpDate = "";
+          let Gender = "";
+          let Address = "";
+          let PhoneNumber = "";
+          let Email = "";
+
+          if(connectedUserInfo) {
+            ImgSrc = "../profileImages/" + connectedUserInfo.ProfileImageName;
+            SignUpDate = connectedUserInfo.SignUpDate;
+            Gender = connectedUserInfo.Gender;
+            Address = connectedUserInfo.Address;
+            Phonenumber = connectedUserInfo.PhoneNumber;
+          }
+        %>
+
+        <img id="" class="img-fluid rounded-circle" src="<%=ImgSrc%>" alt="Image For User Profile">
+        <p class="lead"><%=Gender%></p>
+        <p class="lead">Sign up date: <%=SignUpDate%></p>
+        <p class="lead"><%=Address%></p>
+        <p class="lead"><%=PhoneNumber%></p>
+        <p class="lead"><%=Email%></p>
       </div>
     </div>
   </div>

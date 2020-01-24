@@ -1,7 +1,7 @@
-import {Request, Response, response} from "express";
-import {sql} from "../sql";
+import { Request, Response } from "express";
+import { sql } from "../sql";
 import express from "express";
-import {userDBConfig} from "../dbconfig";
+import { userDBConfig } from "../dbconfig";
 import jwt from 'jsonwebtoken';
 import { verifyToken } from "../authentification";
 import fs from "fs";
@@ -134,7 +134,7 @@ user.post(
   "/UserEdit/Update",
   verifyToken,
   async (req: Request, res: Response) => {
-
+    
     const token = req.body.token;
     const userID = jwt.verify(token, process.env.JWT_SECRET).ID;
 
@@ -147,7 +147,7 @@ user.post(
         PhoneNumber = '${req.body.PhoneNumber}',
         Gender = '${req.body.Gender}',
         Email = '${req.body.Email}',
-        Name = '${req.body.LastName + ' ' + req.body.FirstName}'
+        Name = '${req.body.LastName + " " + req.body.FirstName}'
     `;
 
     if (req.files.length !== 0) {
@@ -209,10 +209,8 @@ user.post(
         );
 
         updateQuery += `, ProfileImageName = '${fileName}' where ID = '${userID}'`;
-
       });
-    }
-    else {
+    } else {
       updateQuery += `where ID = '${userID}'`;
     }
 

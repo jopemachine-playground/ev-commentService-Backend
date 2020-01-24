@@ -27,12 +27,12 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
       <ul>
         <li id="EV-CommentNumber" class="nav-tab" onclick="location.reload();">Comments</li>
 
-        <% if(!connectedUserID){ %>
+        <% if(!connectedUserInfo){ %>
             <li id="EV-Login" style="float:right;" class="nav-tab" data-toggle="modal" data-target="#LogInModal">Login</li>
         <% } else { %>
             <li id="EV-Logout" style="float:right;" onclick="logout()">Logout</li>
             <li id="connectedUser-AvatarList" style="float:right;"><img id="connectedUser-Avatar" data-toggle="modal"
-                data-target="#UserInfoModal" class="img-fluid" src="<%=api%>/profileImages/$userDefaultProfile.svg"
+                data-target="#UserInfoModal" class="img-fluid" src="/profileImages/<%=connectedUserInfo.ProfileImageName%>"
                 alt="Image For User Profile"></li>
         <%  } %>
 
@@ -79,7 +79,6 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
             <% } %>
           
           <% comments.map((item) => { %>
-
             <%
             // 댓글의 긍정도에 따라, class를 달리 붙임.
             const positiveClass = "comment-neutral";
@@ -88,7 +87,6 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
             (!item.ProfileImageFileName) && (item.ProfileImageFileName = "$userDefaultProfile.svg");
             const profileImagePath = `/profileImages/${item.ProfileImageFileName}`;
             %>
-
             <li id="ev-comment-<%=item.CommentIndex%>" 
                 class="row comment <%=positiveClass%>">
                 <img class="comment-avatar col-1.5 rounded-circle" width="48px" height="48px" class="img-fluid rounded-circle" src="<%=profileImagePath%>" alt="Image For User Profile">
@@ -98,7 +96,7 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
                 <br>
                 <p id="comment-content-<%=item.CommentIndex%>"
                    class="comment-content"><%=item.Content%></p>
-                <%if(connectedUserID === item.CommentUserId) {%>
+                <%if(connectedUserInfo && (connectedUserInfo.ID === item.CommentUserId)) {%>
                   <span><img src="<%=api%>/image/trash-2.svg" width="16px" height="16px" onclick="deleteComment($(this).closest('li').attr('id'))"></span>
                   <span><img src="<%=api%>/image/edit.svg" width="16px" height="16px" onclick="editComment($(this).parent().prevAll('p').attr('id'), $(this).parent().next())"></span>
                   <span style="display: none;" class="sendCommentUpdateButton"><img src="<%=api%>/image/send.svg" width="16px" height="16px" onclick="sendCommentUpdateMessage($(this).parent().prevAll('p').attr('id'))"></span>

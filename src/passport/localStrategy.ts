@@ -1,6 +1,6 @@
 import LocalStrategy from "passport-local";
-import {sql} from "../sql";
-import {userDBConfig} from "../dbconfig";
+import { sql } from "../sql";
+import { userDBConfig } from "../dbconfig";
 
 export default (passport) => {
   passport.use(new LocalStrategy({
