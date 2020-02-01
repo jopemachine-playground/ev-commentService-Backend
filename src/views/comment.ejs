@@ -44,7 +44,7 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
         <!-- Avatar (셋팅된 프로필 사진) -->
         <!-- 댓글 입력 창 -->
         <div class="textarea-outer col-sm-12">
-          <span id="Textarea-placeholder" onclick="textAreaClicked()">여기에 텍스트를 입력하세요..</span>
+          <span id="Textarea-placeholder" onclick="textAreaClicked()">Enter text here..</span>
           <p id="CommentArea" class="alignLeft" width="100%" tabindex="0" role="textbox" aria-multiline="true"
             contenteditable="PLAINTEXT-ONLY" data-role="editable" class="text-right" title="Join the discussion..."></p>
         </div>
@@ -60,8 +60,8 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
           </ul>
         </div>
         <div id="recommendLoginAlert" class="alert alert-success alert-dismissible fade show" style="display: none;">
-          <p class="lead" style="font-size: 14px; color: #4c4c4c;">Ev Comment 서비스에 로그인하시겠습니까?<br>익명으로 댓글을
-            남기시려면 제출을 한 번 더 클릭해주세요.</p>
+          <p class="lead" style="font-size: 14px; color: #4c4c4c;">Do you want to login to Ev-CommentService<br>
+            To leave comments anonymously, click Submit one more time.</p>
         </div>
       </div>
       <hr>
@@ -74,7 +74,7 @@ let { paginationID, paginationEnd, paginationDivision } = paginationInfo;
                 <button type="button" class="close" aria-label="Close" data-dismiss="alert">
                   <span aria-hidden="true">&times;</span>
                 </button>
-                <p id="NoCommentWarning" class="lead" style="font-size: 14px; color: #4c4c4c;">등록된 댓글이 없습니다.</p>
+                <p id="NoCommentWarning" class="lead" style="font-size: 14px; color: #4c4c4c;">No comments</p>
               </div>
             <% } %>
           

@@ -17,7 +17,7 @@ export default (passport) => {
         const isValid: Boolean = searchRes;
 
         if(isValid) done(null, ID);
-        else done (null, false, { message: "ID와 비밀번호가 일치하지 않습니다."})
+        else done (null, false, { message: "ID and password do not match." });
       })();
   })
   )

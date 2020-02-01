@@ -5,7 +5,7 @@ export function isLoggedIn(req: Request, res: Response, next: NextFunction) {
   if (req.isAuthenticated()) {
     next();
   } else {
-    res.status(403).send('먼저 로그인을 해 주세요!');
+    res.status(403).send('Please login first!');
   }
 }
 
@@ -26,12 +26,12 @@ export function verifyToken (req: Request, res: Response, next: NextFunction) {
     if(error.name === 'TokenExpiredError') {
       return res.status(419).json({
         code: 419,
-        message: "토큰이 만료되었습니다."
+        message: "Token expired."
       });
     }
     return res.status(401).json({
       code: 401,
-      message: "유효하지 않은 토큰입니다."
+      message: "Not valid token"
     });
   }
 }

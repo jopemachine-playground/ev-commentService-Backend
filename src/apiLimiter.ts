@@ -7,7 +7,7 @@ const rateLimit = new RateLimit({
   handler(req, res) {
     res.status(this.statusCode).json({
       code: this.statusCode,
-      message: '초당 2회까지만 요청할 수 있습니다.'
+      message: 'You can only request up to two times per second.'
     })
   }
 });

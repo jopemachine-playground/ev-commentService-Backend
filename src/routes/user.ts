@@ -18,7 +18,7 @@ user.post("/SignIn", (req: Request, res: Response) => {
 
     const isValid: Boolean = searchRes.length;
 
-    if(!isValid) res.json ({ VALID: false, message: "ID와 비밀번호가 일치하지 않습니다."});
+    if(!isValid) res.json ({ VALID: false, message: "ID and password do not match." });
   })();
 
   const token = jwt.sign(
@@ -34,7 +34,7 @@ user.post("/SignIn", (req: Request, res: Response) => {
   return res.json({
     VALID: true,
     code: 200,
-    message: "토큰이 발급되었습니다",
+    message: "Token has been issued",
     token,
   })
 });
