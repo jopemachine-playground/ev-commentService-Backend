@@ -93,8 +93,7 @@ comment.get("/URL-Verification", async (req: Request, res: Response) => {
 
 comment.get("/Fetch", async (req: Request, res: Response) => {
 
-  const connectedUserID = req.user;
-  let connectedUserInfo;
+  const connectedUserID: string = req.user;
   const { blogID, pageID, mode } = req.query;
 
   if (!pageID || !blogID || !mode) {
@@ -102,15 +101,8 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
     return;
   }
 
-  const paginationID = parseInt(req.query.paginationID);
-  const paginationDivision = parseInt(req.query.paginationDivision);
-
-  let comments;
-  let commentsCnt;
-
-  let paginationEnd;
-  let title;
-
+  let connectedUserInfo: any;
+  
   if(req.user){
     await sql.connect(userDBConfig, async con => {
       const fetch = `select * from usersinfotbl where ID = '${req.user}'`;
@@ -118,8 +110,23 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
       connectedUserInfo = fetchRet[0];
     })();
   }
+  
+  let title                 : string = "";
+  
+  let startPoint            : number = -1;
+  let paginationEnd         : number = -1;
+  let laquo_paginationID    : number = -1;
+  let raquo_paginationID    : number = -1;
+  const paginationID        : number = parseInt(req.query.paginationID);
+  const paginationDivision  : number = parseInt(req.query.paginationDivision);
 
-  // Calculate pagination info
+  // 페이지네이션 할 수 있는 숫자를 몇 개까지 표시할 것인지 나타내는 int형 변수
+  // (값을 바꿔도 되지만, 웹페이지 디자인 상 홀수여야 균형이 맞아보이니 주의)
+  const paginatorsNumber    : number = 5;
+
+  let comments              : any;
+  let commentsCnt           : number = -1;
+  
   await sql.connect(dbConfig(blogID, 4), async con => {
     const fetchTitle = 
       `select Title from pagetitlepairs where PageID = '${pageID}'`;
@@ -143,6 +150,23 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
     } else {
       paginationEnd = Math.floor(commentsCnt / paginationDivision) + 1;
     }
+    
+    laquo_paginationID = paginationID === 1 ? 1: paginationID - 1;
+    raquo_paginationID = paginationEnd ? paginationEnd : paginationID - 1;
+
+    // 현재 페이지가 앞 쪽에 치우친 경우 (1부터 순차대로 $paginatorsNumber 수 만큼 출력)
+    if(paginationEnd < paginatorsNumber || paginationID - (paginatorsNumber / 2) <= 0){
+      startPoint = 1;
+    }
+    // 현재 페이지가 뒤 쪽에 치우친 경우 (순차대로 $paginatorsNumber 수 만큼 출력)
+    else if(paginationEnd - paginationID < (paginatorsNumber / 2)){
+      startPoint = paginationEnd - paginatorsNumber + 1;
+    }
+    // 페이지를 중앙에 놓으면 되는 경우
+    else {
+      startPoint = paginationID - (paginatorsNumber / 2);
+    }
+
   })();
 
   res.render("comment", {
@@ -151,10 +175,14 @@ comment.get("/Fetch", async (req: Request, res: Response) => {
     params: req.query,
     comments,
     commentsCnt,
-    paginationInfo: { 
+    paginationInfo: {
+      startPoint,         
+      paginatorsNumber,
       paginationID, 
       paginationEnd, 
-      paginationDivision 
+      paginationDivision,
+      laquo_paginationID,
+      raquo_paginationID
     },
     conf: { dbConfig, userDBConfig },
     sql
