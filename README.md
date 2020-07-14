@@ -134,4 +134,3 @@ none : Emotional analysis styles were not indicated.
 debug : Do not use emotional analysis service
 ```
 
-## ❗ Screen shots
